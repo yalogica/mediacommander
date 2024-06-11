@@ -678,6 +678,18 @@ class FoldersModel {
         return false;
     }
 
+    public static function getAttachments( $id, $max ) {
+        global $wpdb;
+        $tableAttachments = HelperModel::getTableName(HelperModel::ATTACHMENTS);
+
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+        $sql = $wpdb->prepare( "SELECT attachment_id as id FROM {$tableAttachments} WHERE folder_id = %d LIMIT %d", $id, $max );
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+        $ids = $wpdb->get_col( $sql );
+
+        return $ids;
+    }
+
     public static function getAttachmentFiles( $id ) {
         global $wpdb;
         $tableAttachments = HelperModel::getTableName( HelperModel::ATTACHMENTS );

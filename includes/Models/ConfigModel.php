@@ -73,7 +73,7 @@ class ConfigModel {
 
     public static function getTicket() {
         global $mediacommander_fs;
-        if( $mediacommander_fs->can_use_premium_code() ) {
+        if( $mediacommander_fs->can_use_premium_code__premium_only() ) {
             return true;
         }
         return false;

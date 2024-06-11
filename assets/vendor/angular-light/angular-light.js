@@ -1,10 +1,11 @@
-/**
- * Angular Light 0.14.0
- * (c) 2016 Oleg Nechaev
- * Released under the MIT License.
- */
-(function() {
-    "use strict";
+/* @license
+ Angular Light 0.14.0
+ https://github.com/lega911/angular-light
+ Released under the MIT License
+*/
+;(function() {
+    'use strict';
+
     function buildAlight() {
         var alight = function(element, data) {
             return alight.bootstrap(element, data);

@@ -1,0 +1,31 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 1,
+  "version": "0.1.0",
+  "name": "mediacommander/image-gallery",
+  "title": "Media Commander Image Gallery",
+  "category": "media",
+  "icon": "images-alt2",
+  "description": "Show media library image gallery from selected folder",
+  "attributes": {
+    "folder": {
+      "type": "string",
+      "default": ""
+    },
+    "columns": {
+      "type": "number",
+      "default": 4
+    },
+    "max": {
+      "type": "number",
+      "default": 8
+    },
+    "imageSize": {
+      "type": "string", "default": "thumbnail"
+    }
+  },
+  "textdomain": "mediacommander",
+  "editorScript": "file:./index.js",
+  "editorStyle": "file:./index.css",
+  "viewStyle": "file:./index.css"
+}

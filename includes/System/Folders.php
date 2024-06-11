@@ -349,11 +349,11 @@ class Folders {
                     'docs' => MEDIACOMMANDER_PLUGIN_DOCS_URL
                 ]
             ],
-            'msg' => HelperModel::getMessagesForSidebar(),
             'api' => [
                 'nonce' => wp_create_nonce( 'wp_rest' ),
                 'url' => esc_url_raw( rest_url( MEDIACOMMANDER_PLUGIN_REST_URL ) )
-            ]
+            ],
+            'msg' => HelperModel::getMessagesForSidebar()
         ];
 
         return $globals;
