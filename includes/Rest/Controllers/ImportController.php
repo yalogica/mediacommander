@@ -1,9 +1,9 @@
 <?php
-namespace MediaCommander\Rest\Controllers;
+namespace Yalogica\MediaCommander\Rest\Controllers;
 
 defined( 'ABSPATH' ) || exit;
 
-use MediaCommander\Models\ImportModel;
+use Yalogica\MediaCommander\Models\ImportModel;
 
 class ImportController {
     public function registerRestRoutes() {

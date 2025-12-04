@@ -1,9 +1,9 @@
 <?php
-namespace MediaCommander\Rest\Controllers;
+namespace Yalogica\MediaCommander\Rest\Controllers;
 
 defined( 'ABSPATH' ) || exit;
 
-use MediaCommander\Models\FolderTypesModel;
+use Yalogica\MediaCommander\Models\FolderTypesModel;
 
 class FolderTypesController {
     public function registerRestRoutes() {

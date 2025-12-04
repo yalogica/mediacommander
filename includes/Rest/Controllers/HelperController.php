@@ -1,9 +1,9 @@
 <?php
-namespace MediaCommander\Rest\Controllers;
+namespace Yalogica\MediaCommander\Rest\Controllers;
 
 defined( 'ABSPATH' ) || exit;
 
-use MediaCommander\Models\HelperModel;
+use Yalogica\MediaCommander\Models\HelperModel;
 
 class HelperController {
     public function registerRestRoutes() {

@@ -1,9 +1,9 @@
 <?php
-namespace MediaCommander\Blocks;
+namespace Yalogica\MediaCommander\Blocks;
 
 defined( 'ABSPATH' ) || exit;
 
-use MediaCommander\Models\FoldersModel;
+use Yalogica\MediaCommander\Models\FoldersModel;
 
 class GalleryBlock {
     public function __construct() {
@@ -82,10 +82,10 @@ class GalleryBlock {
 
         $classes = ['mediacommander-gallery-block'];
         if ( !empty( $className ) ) {
-            $classes[] = $className;
+            $classes[] = sanitize_html_class( $className );
         }
 
-        echo '<div class="' . implode( ' ', $classes ) . '">';
+        echo '<div class="' . esc_attr( implode( ' ', array_map( 'esc_attr', $classes ) ) ) . '">';
         for ($column = 1; $column <= $columns; $column++) {
             echo '<div class="mediacommander-gallery-block__column">';
 

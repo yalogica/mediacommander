@@ -1,13 +1,14 @@
 <?php
-namespace MediaCommander\System;
+namespace Yalogica\MediaCommander\System;
 
 defined( 'ABSPATH' ) || exit;
 
-use MediaCommander\Models\SecurityProfilesModel;
-use MediaCommander\Models\FoldersModel;
-use MediaCommander\Models\HelperModel;
-use MediaCommander\Models\ConfigModel;
-use MediaCommander\Models\UserModel;
+use Yalogica\MediaCommander\Models\SecurityProfilesModel;
+use Yalogica\MediaCommander\Models\FoldersModel;
+use Yalogica\MediaCommander\Models\HelperModel;
+use Yalogica\MediaCommander\Models\ConfigModel;
+use Yalogica\MediaCommander\Models\FreemiusModel;
+use Yalogica\MediaCommander\Models\UserModel;
 
 class Folders {
     private $access = false;
@@ -166,8 +167,8 @@ class Folders {
         }
 
         global $wpdb;
-        $tableFolders = HelperModel::getTableName( HelperModel::FOLDERS );
-        $tableAttachments = HelperModel::getTableName( HelperModel::ATTACHMENTS );
+        $tableFolders = esc_sql( HelperModel::getTableName( HelperModel::FOLDERS ) );
+        $tableAttachments = esc_sql( HelperModel::getTableName( HelperModel::ATTACHMENTS ) );
 
         $type = FoldersModel::getCurrentType();
         $rights = UserModel::getRights( $type );
@@ -194,8 +195,8 @@ class Folders {
 
     public function deletePost( $post_id ) {
         global $wpdb;
-        $tableFolders = HelperModel::getTableName( HelperModel::FOLDERS );
-        $tableAttachments = HelperModel::getTableName( HelperModel::ATTACHMENTS );
+        $tableFolders = esc_sql( HelperModel::getTableName( HelperModel::FOLDERS ) );
+        $tableAttachments = esc_sql( HelperModel::getTableName( HelperModel::ATTACHMENTS ) );
 
         // folders to refresh after the update
         // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
@@ -232,8 +233,8 @@ class Folders {
             $folder_id = intval( $_REQUEST['folder'] );
 
             global $wpdb;
-            $tableFolders = HelperModel::getTableName( HelperModel::FOLDERS );
-            $tableAttachments = HelperModel::getTableName( HelperModel::ATTACHMENTS );
+            $tableFolders = esc_sql( HelperModel::getTableName( HelperModel::FOLDERS ) );
+            $tableAttachments = esc_sql( HelperModel::getTableName( HelperModel::ATTACHMENTS ) );
 
             // add new attachments
             // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
@@ -285,7 +286,7 @@ class Folders {
 
                 if ( in_array( 'dimension', $list ) ) {
                     $attachment_meta = wp_get_attachment_metadata( $attachment_id );
-                    if ( isset( $attachment_meta ) && !empty( $attachment_meta ) ) {
+                    if ( isset( $attachment_meta ) && !empty( $attachment_meta ) && array_key_exists( 'width', $attachment_meta ) ) {
                         $preview_details .= '<p>' . esc_html__( "Dimension", 'mediacommander' ) . ': ' . $attachment_meta['width'] . ' x ' . $attachment_meta['height'] . '</p>';
                     }
                 }
@@ -341,11 +342,10 @@ class Folders {
                 'disable_ajax' => $config['disable_ajax'],
                 'disable_search_bar' => $config['disable_search_bar'],
                 'media_hover_details' => $config['media_hover_details'],
-                'ticket' => (bool) ConfigModel::getTicket(),
+                'ticket' => (bool) FreemiusModel::getTicket(),
                 'max_upload_size' => size_format( wp_max_upload_size() ),
                 'url' => [
-                    'upgrade' => ConfigModel::getUpgradeUrl(),
-                    'support' => ConfigModel::getSupportUrl(),
+                    'upgrade' => FreemiusModel::getUpgradeUrl(),
                     'docs' => MEDIACOMMANDER_PLUGIN_DOCS_URL
                 ]
             ],

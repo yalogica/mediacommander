@@ -1,9 +1,9 @@
 <?php
-namespace MediaCommander\Rest\Controllers;
+namespace Yalogica\MediaCommander\Rest\Controllers;
 
 defined( 'ABSPATH' ) || exit;
 
-use MediaCommander\Models\ConfigModel;
+use Yalogica\MediaCommander\Models\ConfigModel;
 
 class ConfigController {
     public function registerRestRoutes() {

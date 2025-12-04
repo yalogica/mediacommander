@@ -1,5 +1,5 @@
 <?php
-namespace MediaCommander\Models;
+namespace Yalogica\MediaCommander\Models;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -43,20 +43,37 @@ class ConfigModel {
     }
 
     public static function set( $data = null ) {
-        $data = $data ? $data : self::get();
-        $data = $data ? $data : [];
+        $current_data = self::get();
+        $current_data = $current_data ? $current_data : [];
 
         foreach ( self::DEFAULT_CONFIG as $key => $option ) {
-            if ( !array_key_exists( $key, $data ) ) {
-                $data[$key] = $option;
+            if ( !array_key_exists( $key, $current_data ) ) {
+                $current_data[ $key ] = $option;
             }
         }
 
-        foreach ( $data as $key => $option ) {
+        foreach ( $current_data as $key => $option ) {
             if ( !array_key_exists( $key, self::DEFAULT_CONFIG ) ) {
-                unset( $data[$key] );
+                unset( $current_data[ $key ] );
             }
         }
+
+        if ( $data ) {
+            foreach ( $current_data as $key => $option) {
+                if ( !array_key_exists( $key, $data ) ) {
+                    $data[ $key ] = $option;
+                }
+            }
+
+            foreach ( $data as $key => $option ) {
+                if ( !array_key_exists( $key, self::DEFAULT_CONFIG ) ) {
+                    unset( $data[$key] );
+                }
+            }
+        } else {
+            $data = $current_data;
+        }
+
 
         if ( get_option( self::OPTION_KEY ) == false ) {
             $autoload = 'no';
@@ -69,33 +86,5 @@ class ConfigModel {
                 return update_option( self::OPTION_KEY, $data );
             }
         }
-    }
-
-    public static function getTicket() {
-        global $mediacommander_fs;
-        if( $mediacommander_fs->can_use_premium_code__premium_only() ) {
-            return true;
-        }
-        return false;
-    }
-
-    public static function getUpgradeUrl() {
-        global $mediacommander_fs;
-        return $mediacommander_fs->get_upgrade_url();
-    }
-
-    public static function getSupportUrl() {
-        global $mediacommander_fs;
-        return $mediacommander_fs->contact_url();
-    }
-
-    public static function getAccountUrl() {
-        global $mediacommander_fs;
-        return $mediacommander_fs->get_account_url();
-    }
-
-    public static function isAnonymous() {
-        global $mediacommander_fs;
-        return $mediacommander_fs->is_anonymous();
     }
 }

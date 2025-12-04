@@ -1,5 +1,5 @@
 <?php
-namespace MediaCommander\Models;
+namespace Yalogica\MediaCommander\Models;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -39,7 +39,7 @@ class UserModel {
 
     public static function getRights( $type ) {
         global $wpdb;
-        $tableFolderTypes = HelperModel::getTableName( HelperModel::FOLDER_TYPES );
+        $tableFolderTypes = esc_sql( HelperModel::getTableName( HelperModel::FOLDER_TYPES ) );
 
         // phpcs:disable WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
         $sql = $wpdb->prepare("
@@ -63,7 +63,7 @@ class UserModel {
                     'a' => true
                 ];
             } else {
-                $tableSecurityProfiles = HelperModel::getTableName( HelperModel::SECURITY_PROFILES );
+                $tableSecurityProfiles = esc_sql( HelperModel::getTableName( HelperModel::SECURITY_PROFILES ) );
                 $user_id = get_current_user_id();
 
                 // phpcs:disable WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching

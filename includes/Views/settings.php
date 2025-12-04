@@ -64,19 +64,6 @@ defined( 'ABSPATH' ) || exit;
                 <div class="mcmd-panel" al-attr.class.mcmd-active="App.ui.tabs.fn.is('general')">
                     <div class="mcmd-option" al-attr.class.mcmd-lock="!App.data.ticket">
                         <div class="mcmd-description">
-                            <div class="mcmd-title"><?php esc_html_e("Access roles", 'mediacommander'); ?></div>
-                            <div class="mcmd-text"><?php esc_html_e("Only selected user roles have access to folders. These are general settings, use the permissions tab to grant users additional personal or general permissions.", 'mediacommander'); ?></div>
-                        </div>
-                        <div class="mcmd-data">
-                            <div class="mcmd-checklist">
-                                <label al-repeat="role in App.data.roles"><input type="checkbox" value="{{role.id}}" al-on.change="App.fn.config.onAccessRoleChange($event, role)" al-attr.checked="App.fn.config.isAccessRoleChecked(role)">{{role.title}}</label>
-                            </div>
-                            <div class="mcmd-upgrade"><i class="mcmd-icon"></i><div al-html="App.globals.msg.upgrade"></div></div>
-                        </div>
-                    </div>
-                    <div class="mcmd-spacer"></div>
-                    <div class="mcmd-option" al-attr.class.mcmd-lock="!App.data.ticket">
-                        <div class="mcmd-description">
                             <div class="mcmd-title"><?php esc_html_e("Default folder color", 'mediacommander'); ?></div>
                             <div class="mcmd-text"><?php esc_html_e("Set the default color for all folders that don't have their own colors.", 'mediacommander'); ?></div>
                         </div>
@@ -119,26 +106,28 @@ defined( 'ABSPATH' ) || exit;
                         </div>
                     </div>
                     <div class="mcmd-spacer"></div>
-                    <div class="mcmd-option">
+                    <div class="mcmd-option" al-attr.class.mcmd-lock="!App.data.ticket">
                         <div class="mcmd-description">
                             <div class="mcmd-title"><?php esc_html_e("Show media details on hover", 'mediacommander'); ?></div>
                             <div class="mcmd-text"><?php esc_html_e("View essential metadata, including title, size, type, date, and dimensions, by simply hovering your cursor over an image.", 'mediacommander'); ?></div>
                         </div>
                         <div class="mcmd-data">
-                            <div al-toggle="App.data.config.media_hover_details"></div>
+                            <div al-toggle="App.data.config.media_hover_details" al-on.click.stop="App.fn.config.onCheckboxChange($event)"></div>
                             <div class="mcmd-checklist mcmd-margin-top" al-if="App.data.config.media_hover_details">
                                 <label al-repeat="detail in App.data.media_hover_details"><input type="checkbox" value="{{detail.id}}" al-on.change="App.fn.config.onMediaDetailsChange($event, detail)" al-attr.checked="App.fn.config.isMediaDetailsChecked(detail)">{{detail.title}}</label>
                             </div>
+                            <div class="mcmd-upgrade"><i class="mcmd-icon"></i><div al-html="App.globals.msg.upgrade"></div></div>
                         </div>
                     </div>
                     <div class="mcmd-spacer"></div>
-                    <div class="mcmd-option">
+                    <div class="mcmd-option" al-attr.class.mcmd-lock="!App.data.ticket">
                         <div class="mcmd-description">
                             <div class="mcmd-title"><?php esc_html_e("Disable search bar", 'mediacommander'); ?></div>
                             <div class="mcmd-text"><?php esc_html_e("Disable the display of the folder search bar.", 'mediacommander'); ?></div>
                         </div>
                         <div class="mcmd-data">
-                            <div al-toggle="App.data.config.disable_search_bar"></div>
+                            <div al-toggle="App.data.config.disable_search_bar" al-on.click.stop="App.fn.config.onCheckboxChange($event)"></div>
+                            <div class="mcmd-upgrade"><i class="mcmd-icon"></i><div al-html="App.globals.msg.upgrade"></div></div>
                         </div>
                     </div>
                     <div class="mcmd-spacer"></div>
@@ -163,6 +152,19 @@ defined( 'ABSPATH' ) || exit;
                     <div class="mcmd-description">
                         <div class="mcmd-title"><?php esc_html_e("Description", 'mediacommander'); ?></div>
                         <div class="mcmd-text"><?php esc_html_e("Use this section to control who can view and edit folders. Simply create specific permissions for users and roles, then select a security profile for each folder type and apply it.", 'mediacommander'); ?></div>
+                    </div>
+                    <div class="mcmd-spacer"></div>
+                    <div class="mcmd-option" al-attr.class.mcmd-lock="!App.data.ticket">
+                        <div class="mcmd-description">
+                            <div class="mcmd-title"><?php esc_html_e("Access roles", 'mediacommander'); ?></div>
+                            <div class="mcmd-text"><?php esc_html_e("Only selected user roles have access to folders. These are general settings, use the permissions tab to grant users additional personal or general permissions.", 'mediacommander'); ?></div>
+                        </div>
+                        <div class="mcmd-data">
+                            <div class="mcmd-checklist">
+                                <label al-repeat="role in App.data.roles"><input type="checkbox" value="{{role.id}}" al-on.change="App.fn.accessroles.onChange($event, role)" al-attr.checked="App.fn.accessroles.isChecked(role)">{{role.title}}</label>
+                            </div>
+                            <div class="mcmd-upgrade"><i class="mcmd-icon"></i><div al-html="App.globals.msg.upgrade"></div></div>
+                        </div>
                     </div>
                     <div class="mcmd-spacer"></div>
                     <div class="mcmd-option">
@@ -373,7 +375,6 @@ defined( 'ABSPATH' ) || exit;
                                 <p><?php esc_html_e("Unlock all features and premium support", 'mediacommander'); ?></p>
                                 <ul>
                                     <li><div class="mcmd-icon"></div><?php esc_html_e("Sort Options", 'mediacommander'); ?></li>
-                                    <li><div class="mcmd-icon"></div><?php esc_html_e("Create Subfolders", 'mediacommander'); ?></li>
                                     <li><div class="mcmd-icon"></div><?php esc_html_e("Advanced User Rights", 'mediacommander'); ?></li>
                                     <li><div class="mcmd-icon"></div><?php esc_html_e("Organize Pages, Posts and Custom Post Types", 'mediacommander'); ?></li>
                                     <li><div class="mcmd-icon"></div><?php esc_html_e("Page Builders: Elementor, Beaver, Divi, Brizy etc.", 'mediacommander'); ?></li>
@@ -386,32 +387,11 @@ defined( 'ABSPATH' ) || exit;
                 </div>
             </div>
             <div class="mcmd-sidebar">
-                <a class="mcmd-panel" href="{{App.globals.data.url.upgrade}}" target="_self" al-if="!App.data.ticket" style="--order:1;">
-                    <div class="mcmd-icon mcmd-crown"></div>
-                    <div class="mcmd-description">
-                        <div class="mcmd-title"><?php esc_html_e("Get MediaCommander Pro", 'mediacommander'); ?></div>
-                        <div class="mcmd-text"><?php esc_html_e("Unlock all features and premium support.", 'mediacommander'); ?></div>
-                    </div>
-                </a>
-                <a class="mcmd-panel" href="{{App.globals.data.url.support}}" target="_self" style="--order:2;">
-                    <div class="mcmd-icon mcmd-support"></div>
-                    <div class="mcmd-description">
-                        <div class="mcmd-title"><?php esc_html_e("Support", 'mediacommander'); ?></div>
-                        <div class="mcmd-text"><?php esc_html_e("Our support team is always ready to provide prompt and efficient assistance.", 'mediacommander'); ?></div>
-                    </div>
-                </a>
-                <a class="mcmd-panel" href="{{App.globals.data.url.docs}}" target="_blank" style="--order:3;">
+                <a class="mcmd-panel" href="{{App.globals.data.url.docs}}" target="_blank" style="--order:1;">
                     <div class="mcmd-icon mcmd-docs"></div>
                     <div class="mcmd-description">
                         <div class="mcmd-title"><?php esc_html_e("Documentation", 'mediacommander'); ?></div>
                         <div class="mcmd-text"><?php esc_html_e("Check out our extensive knowledge base, allowing users to easily navigate and master the plugin's features.", 'mediacommander'); ?></div>
-                    </div>
-                </a>
-                <a class="mcmd-panel" href="{{App.globals.data.url.account}}" target="_self" al-if="!App.data.anonymous" style="--order:4;">
-                    <div class="mcmd-icon mcmd-account"></div>
-                    <div class="mcmd-description">
-                        <div class="mcmd-title"><?php esc_html_e("Account Details", 'mediacommander'); ?></div>
-                        <div class="mcmd-text"><?php esc_html_e("The profile contains basic information related to the plugin and the current license.", 'mediacommander'); ?></div>
                     </div>
                 </a>
             </div>

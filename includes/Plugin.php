@@ -1,11 +1,11 @@
 <?php
-namespace MediaCommander;
+namespace Yalogica\MediaCommander;
 
 defined( 'ABSPATH' ) || exit;
 
 class Plugin {
     public static function run() {
-        add_action( 'plugins_loaded', [ 'MediaCommander\\Plugin', 'pluginsLoaded' ] );
+        add_action( 'plugins_loaded', [ 'Yalogica\\MediaCommander\\Plugin', 'pluginsLoaded' ] );
     }
 
     public static function activate() {
@@ -16,8 +16,6 @@ class Plugin {
     }
 
     public static function pluginsLoaded() {
-        load_plugin_textdomain( 'mediacommander', false, dirname( MEDIACOMMANDER_PLUGIN_BASE_NAME) . '/languages/' );
-
         new Rest\Routes();
         new Blocks\GalleryBlock();
         new System\Notice();

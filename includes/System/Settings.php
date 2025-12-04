@@ -1,12 +1,12 @@
 <?php
-namespace MediaCommander\System;
+namespace Yalogica\MediaCommander\System;
 
 defined( 'ABSPATH' ) || exit;
 
-use MediaCommander\Models\HelperModel;
-use MediaCommander\Models\ConfigModel;
-use MediaCommander\Models\ImportModel;
-use MediaCommander\Models\SecurityProfilesModel;
+use Yalogica\MediaCommander\Models\HelperModel;
+use Yalogica\MediaCommander\Models\FreemiusModel;
+use Yalogica\MediaCommander\Models\ImportModel;
+use Yalogica\MediaCommander\Models\SecurityProfilesModel;
 
 class Settings {
     public function __construct() {
@@ -19,10 +19,18 @@ class Settings {
     }
 
     public function adminMenu() {
-       add_submenu_page(
-            'options-general.php',
-            'MediaCommander Settings',
+        add_menu_page(
             'MediaCommander',
+            'MediaCommander',
+            'manage_options',
+            'mediacommander-settings',
+            [ $this, 'adminMenuPageSettings' ],
+            'dashicons-open-folder'
+        );
+        add_submenu_page(
+            'mediacommander-settings',
+            'Settings',
+            'Settings',
             'manage_options',
             'mediacommander-settings',
             [ $this, 'adminMenuPageSettings' ]
@@ -46,13 +54,12 @@ class Settings {
                         ],
                     ],
                     'plugins_to_import' => ImportModel::getPluginsToImport(),
-                    'ticket' => ConfigModel::getTicket(),
-                    'anonymous' => ConfigModel::isAnonymous(),
+                    'ticket' => FreemiusModel::getTicket(),
+                    'anonymous' => FreemiusModel::isAnonymous(),
                     'url' => [
-                        'upgrade' => ConfigModel::getUpgradeUrl(),
-                        'support' => ConfigModel::getSupportUrl(),
+                        'upgrade' => FreemiusModel::getUpgradeUrl(),
                         'docs' => MEDIACOMMANDER_PLUGIN_DOCS_URL,
-                        'account' => ConfigModel::getAccountUrl()
+                        'account' => FreemiusModel::getAccountUrl()
                     ]
                 ],
                 'msg' => HelperModel::getMessagesForSettings(),

@@ -1,11 +1,11 @@
 <?php
-namespace MediaCommander\Rest\Controllers;
+namespace Yalogica\MediaCommander\Rest\Controllers;
 
 defined( 'ABSPATH' ) || exit;
 
-use MediaCommander\Models\FoldersModel;
-use MediaCommander\Models\HelperModel;
-use MediaCommander\Models\UserModel;
+use Yalogica\MediaCommander\Models\FoldersModel;
+use Yalogica\MediaCommander\Models\HelperModel;
+use Yalogica\MediaCommander\Models\UserModel;
 
 class FoldersController {
     public function registerRestRoutes() {
@@ -245,8 +245,9 @@ class FoldersController {
     public function deleteFolders( \WP_REST_Request $request ) {
         $type  = sanitize_key( $request->get_param( 'type' ) );
         $ids = $request->has_param( 'folders' ) ? array_map( 'intval', $request->get_param( 'folders' ) ) : [];
+        $deleteAttachments = $request->has_param( 'deleteAttachments' ) ? boolval( $request->get_param( 'deleteAttachments' ) ) : false;
 
-        $data = FoldersModel::deleteFolders( $type, $ids );
+        $data = FoldersModel::deleteFolders( $type, $ids, $deleteAttachments );
         $response = isset( $data ) ? [ 'success' => true, 'data' => $data ] : [ 'success' => false ];
 
         return new \WP_REST_Response( $response );

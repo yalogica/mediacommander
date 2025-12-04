@@ -1,12 +1,12 @@
 <?php
-namespace MediaCommander\System;
+namespace Yalogica\MediaCommander\System;
 
 defined( 'ABSPATH' ) || exit;
 
-use MediaCommander\Models\ConfigModel;
-use MediaCommander\Models\FolderTypesModel;
-use MediaCommander\Models\HelperModel;
-use MediaCommander\Models\SecurityProfilesModel;
+use Yalogica\MediaCommander\Models\ConfigModel;
+use Yalogica\MediaCommander\Models\FolderTypesModel;
+use Yalogica\MediaCommander\Models\HelperModel;
+use Yalogica\MediaCommander\Models\SecurityProfilesModel;
 
 class Installer {
     public function __construct() {

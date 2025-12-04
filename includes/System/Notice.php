@@ -1,5 +1,5 @@
 <?php
-namespace MediaCommander\System;
+namespace Yalogica\MediaCommander\System;
 
 defined( 'ABSPATH' ) || exit;
 

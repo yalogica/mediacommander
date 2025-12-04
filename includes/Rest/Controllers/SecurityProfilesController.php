@@ -1,9 +1,9 @@
 <?php
-namespace MediaCommander\Rest\Controllers;
+namespace Yalogica\MediaCommander\Rest\Controllers;
 
 defined( 'ABSPATH' ) || exit;
 
-use MediaCommander\Models\SecurityProfilesModel;
+use Yalogica\MediaCommander\Models\SecurityProfilesModel;
 
 class SecurityProfilesController {
     public function registerRestRoutes() {

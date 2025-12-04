@@ -1,12 +1,12 @@
 <?php
-namespace MediaCommander\Models;
+namespace Yalogica\MediaCommander\Models;
 
 defined( 'ABSPATH' ) || exit;
 
 class FolderTypesModel {
     public static function init() {
         global $wpdb;
-        $tableFolderTypes = HelperModel::getTableName( HelperModel::FOLDER_TYPES );
+        $tableFolderTypes = esc_sql( HelperModel::getTableName( HelperModel::FOLDER_TYPES ) );
 
         $records = [
             [ 'type' => 'attachment', 'title' => 'Media', 'security_profile' => SecurityProfilesModel::COMMON_FOLDERS, 'enabled' => true ],
@@ -29,8 +29,8 @@ class FolderTypesModel {
 
     public static function getItems( $page, $perpage = 10 ) {
         global $wpdb;
-        $tableFolderTypes = HelperModel::getTableName( HelperModel::FOLDER_TYPES );
-        $tableSecurityProfiles = HelperModel::getTableName( HelperModel::SECURITY_PROFILES );
+        $tableFolderTypes = esc_sql( HelperModel::getTableName( HelperModel::FOLDER_TYPES ) );
+        $tableSecurityProfiles = esc_sql( HelperModel::getTableName( HelperModel::SECURITY_PROFILES ) );
 
         $page = intval( $page );
         $count = intval( $perpage );
@@ -45,8 +45,8 @@ class FolderTypesModel {
             SELECT FC.id, FC.type, FC.title, FC.enabled, SP.id AS security_profile_id, SP.title AS security_profile_title, FC.created, FC.modified
             FROM {$tableFolderTypes} AS FC
             LEFT JOIN {$tableSecurityProfiles} AS SP
-            ON FC.security_profile = SP.id
-            ORDER BY created ASC, title 
+            ON FC.security_profile = SP.id 
+            ORDER BY FC.created ASC, FC.title
             LIMIT %d, %d",
             $offset, $count
         );
@@ -75,7 +75,7 @@ class FolderTypesModel {
     public static function createItem( $data ) {
         if ( is_array( $data ) ) {
             global $wpdb;
-            $tableFolderTypes = HelperModel::getTableName( HelperModel::FOLDER_TYPES );
+            $tableFolderTypes = esc_sql( HelperModel::getTableName( HelperModel::FOLDER_TYPES ) );
 
             // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
             $wpdb->insert(
@@ -104,7 +104,7 @@ class FolderTypesModel {
             $ids = implode( ',', array_map( 'intval', $ids ) );
 
             global $wpdb;
-            $tableFolderTypes = HelperModel::getTableName( HelperModel::FOLDER_TYPES );
+            $tableFolderTypes = esc_sql( HelperModel::getTableName( HelperModel::FOLDER_TYPES ) );
 
             $sql = "DELETE FROM {$tableFolderTypes} WHERE id IN ({$ids})";
             // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
@@ -119,8 +119,8 @@ class FolderTypesModel {
 
     public static function getItem( $id ) {
         global $wpdb;
-        $tableFolderTypes = HelperModel::getTableName( HelperModel::FOLDER_TYPES );
-        $tableSecurityProfiles = HelperModel::getTableName( HelperModel::SECURITY_PROFILES );
+        $tableFolderTypes = esc_sql( HelperModel::getTableName( HelperModel::FOLDER_TYPES ) );
+        $tableSecurityProfiles = esc_sql( HelperModel::getTableName( HelperModel::SECURITY_PROFILES ) );
 
         // phpcs:disable WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
         $sql = $wpdb->prepare("
@@ -151,7 +151,7 @@ class FolderTypesModel {
     public static function updateItem( $id, $data ) {
         if ( is_array( $data ) && count( $data ) > 0 ) {
             global $wpdb;
-            $tableFolderTypes = HelperModel::getTableName( HelperModel::FOLDER_TYPES );
+            $tableFolderTypes = esc_sql( HelperModel::getTableName( HelperModel::FOLDER_TYPES ) );
 
             // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
             $wpdb->update(
@@ -177,7 +177,7 @@ class FolderTypesModel {
 
     public static function isFolderTypeEnabled( $type ) {
         global $wpdb;
-        $tableFolderTypes = HelperModel::getTableName( HelperModel::FOLDER_TYPES );
+        $tableFolderTypes = esc_sql( HelperModel::getTableName( HelperModel::FOLDER_TYPES ) );
 
         // phpcs:disable WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
         $sql = $wpdb->prepare("

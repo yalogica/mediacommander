@@ -58,7 +58,7 @@ defined( 'ABSPATH' ) || exit;
     <div class="mcmd-data">
         <div class="mcmd-row">
             <p><?php esc_html_e("Are you sure you want to delete selected folders and all subfolders?", 'mediacommander'); ?></p>
-            <p><?php esc_html_e("Note: all items inside those folders will not be deleted.", 'mediacommander'); ?></p>
+            <p><label><input type="checkbox" id="mcmd-delete-attachments" /><?php esc_html_e('Delete items attached to selected folders too', 'mediacommander'); ?></label></p>
         </div>
     </div>
     <div class="mcmd-footer">

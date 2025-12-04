@@ -1,5 +1,5 @@
 <?php
-namespace MediaCommander\Models;
+namespace Yalogica\MediaCommander\Models;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -40,7 +40,7 @@ class ImportModel {
         switch ( $plugin ) {
             case 'RML':
             case 'FB': {
-                $table = $wpdb->prefix . self::plugins[ $plugin ]['db'];
+                $table = esc_sql( $wpdb->prefix . self::plugins[ $plugin ]['db'] );
                 if ( self::isTableExist( $table ) ) {
                     $sql = "SELECT COUNT(id) FROM {$table} WHERE type=0";
                     // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
@@ -53,6 +53,8 @@ class ImportModel {
 
     public static function isTableExist( $table ) {
         global $wpdb;
+
+        $table = esc_sql( $table );
         $sql = "SHOW TABLES LIKE '{$table}'";
         // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
         return $wpdb->get_var( $sql ) == $table;
@@ -65,7 +67,7 @@ class ImportModel {
 
         global $wpdb;
         $plugin = self::plugins[ $key ];
-        $table = $wpdb->prefix . $plugin['db'];
+        $table = esc_sql( $wpdb->prefix . $plugin['db'] );
         if ( !self::isTableExist( $table ) ) {
             return false;
         }

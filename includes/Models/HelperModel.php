@@ -1,5 +1,5 @@
 <?php
-namespace MediaCommander\Models;
+namespace Yalogica\MediaCommander\Models;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -39,10 +39,10 @@ class HelperModel {
 
             global $wpdb;
             $tables = [
-                self::getTableName( self::FOLDERS ),
-                self::getTableName( self::ATTACHMENTS ),
-                self::getTableName( self::FOLDER_TYPES ),
-                self::getTableName( self::SECURITY_PROFILES )
+                esc_sql( self::getTableName( self::FOLDERS ) ),
+                esc_sql( self::getTableName( self::ATTACHMENTS ) ),
+                esc_sql( self::getTableName( self::FOLDER_TYPES ) ),
+                esc_sql( self::getTableName( self::SECURITY_PROFILES ) )
             ];
 
             foreach( $tables as $table ) {
@@ -108,7 +108,7 @@ class HelperModel {
     }
 
     public static function getMessagesForSidebar() {
-        $upgrade_url =  ConfigModel::getUpgradeUrl();
+        $upgrade_url =  FreemiusModel::getUpgradeUrl();
 
         $messages = [
             'success' => esc_html__( "The operation completed successfully", 'mediacommander' ),
@@ -121,7 +121,7 @@ class HelperModel {
     }
 
     public static function getMessagesForSettings() {
-        $upgrade_url =  ConfigModel::getUpgradeUrl();
+        $upgrade_url =  FreemiusModel::getUpgradeUrl();
 
         $messages = [
             'success' => esc_html__( "The operation completed successfully", 'mediacommander' ),

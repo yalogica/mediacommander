@@ -1,30 +1,32 @@
-=== MediaCommander - WordPress Media Library Folders & File Manager ===
-Contributors: Avirtum, freemius
-Tags: folders, media library, media folders, gallery, file manager
-Requires at least: 4.6
-Tested up to: 6.5
-Stable tag: 2.2.0
-Requires PHP: 7.4
+=== MediaCommander - Bring Folders to Media, Posts, and Pages ===
+Contributors: yalogica, freemius
+Tags: folders, media library, media folder, category, file manager
+Requires at least: 6.3
+Tested up to: 6.9
+Stable tag: 2.3.1
+Requires PHP: 8.2
 License: GPLv3
+License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
-Take control of your content: effortlessly manage posts, pages, and media library with our folder manager!
+Take control of your data with our folder manager - organize your WordPress media library, posts, and pages into specific categories with ease.
 
 == DESCRIPTION ==
 
-Are you feeling overwhelmed by the multitude of posts, pages, and media files on your WordPress site? Say goodbye to chaos and hello to organization with our revolutionary MediaCommander plugin. This game-changing tool transforms the way you manage your media content, providing a seamless and intuitive experience. With MediaCommander, you can quickly and effortlessly structure your WordPress data, elevating it to new heights of efficiency and professionalism. Discover a whole new level of control and simplicity that will forever change how you manage your content.
+Are you feeling overwhelmed by the multitude of posts, pages, and media files on your WordPress site? Say goodbye to chaos and hello to organization with our revolutionary MediaCommander plugin. This game-changing tool transforms the way you manage your media content, providing a seamless and intuitive experience. With MediaCommander, you can quickly and effortlessly structure your WordPress data, elevating it to new heights of efficiency and professionalism. Discover a whole new level of control and simplicity that will forever change how you manage your content. No more feeling overwhelmed by the multitude of tasks; MediaCommander simplifies the management process, making it a breeze for early birds like yourself.
 
 📗 [**DOCUMENTATION**](https://yalogica.com/docs/mediacommander/) 🔥 [**MEDIACOMMANDER PRO**](https://yalogica.com/mediacommander/) 🔥
 
 [youtube https://youtu.be/X-2oaqrls2I]
 
+Discover the joy of efficient media management with MediaCommander. This innovative tool lets you manage your media content with ease, ensuring your WordPress site remains professional and well-organized. So, take flight and embrace the benefits of MediaCommander, the early bird's secret weapon for a streamlined and successful WordPress journey.
 
-###✨ How MediaCommander Plugin Can Help You
+###✨ How Media Commander Plugin Can Help You
 
 Take control of your WordPress content with MediaCommander, a powerful file manager plugin that revolutionizes how you structure and organize your website. With MediaCommander, you unlock the potential to create a seamless and efficient content management system tailored to your unique needs. Structure, organize, and optimize your content with custom directories. MediaCommander goes beyond the basics, empowering you to create structured directories and subdirectories designed specifically for your WordPress posts, pages, and media files. This hierarchical organization ensures that every piece of content has its place, making it easy to locate and access when needed.
 
 For bloggers, this means effortlessly categorizing posts by topics, dates, or themes, enabling a seamless content creation and publishing process. Business owners can maintain a professional and well-organized website, ensuring that important pages and documents are easily accessible. Creatives, such as photographers, designers, and artists, can store their portfolios and projects in a structured and impressive manner.
 
-The benefits of MediaCommander extend further than just organization. The plugin provides flexibility and control, allowing you to customize your content structure to fit your specific requirements. Whether you need to quickly locate a specific image, document, or video, or you want to create a comprehensive archive of your past work, MediaCommander ensures that your WordPress data is always at your fingertips.
+The benefits of MediaCommander extend further than just organization and coordination. The plugin provides flexibility and control, allowing you to customize your content structure to fit your specific requirements. Whether you need to quickly locate a specific image, document, or video, or you want to create a comprehensive archive of your past work, MediaCommander ensures that your WordPress data is always at your fingertips like a good organizer.
 
 >Note: Don't worry, the plugin doesn't change your WordPress data, it expands your ability to manage and catalog it. Adding a post, page, media or other item into a folder will do not change their data.
 
@@ -56,7 +58,7 @@ The benefits of MediaCommander extend further than just organization. The plugin
 
 ✅ **Advanced Folder Permissions:** Provide collaborative control and define specific permissions for users or roles, such as view, edit, delete, and attach items to folders. This feature is ideal for multi-author blogs and sites, allowing you to manage access and maintain a secure and controlled environment for your team.
 
-✅ **Replace Media with Ease:** The MediaCommander plugin simplifies media replacement. It adds a convenient button to the "Attachment Details" screen, allowing you to select and replace images while retaining their properties and URLs. Update media effortlessly, ensuring your content remains fresh and visually appealing.
+✅ **Replace Media:** The MediaCommander plugin simplifies media replacement. It adds a convenient button to the "Attachment Details" screen, allowing you to select and replace images while retaining their properties and URLs. Update media effortlessly, ensuring your content remains fresh and visually appealing.
 
 > Note: If you find that this feature is not working properly, try disabling your browser cache and any third-party WordPress caching plugins.
 
@@ -77,6 +79,14 @@ The benefits of MediaCommander extend further than just organization. The plugin
 ✅ **Responsive Sidebar:** Customize the MediaCommander sidebar to your preferences. Resize and toggle it on or off as needed, creating a seamless and personalized user interface that adapts to your workflow.
 
 ✅ **Smart Delete:** Add, rename, or delete folders with a single click. Even when deleting a folder, your data remains safe, automatically moving to the "Uncategorized" folder for future access. MediaCommander ensures your content is always secure.
+
+✅ **Import Folders from Other Plugins:**
+Considering a switch to MediaCommander? Look no further! With MediaCommander, you can effortlessly import your existing folder structure with just a single click. Your familiar categories will be seamlessly integrated into the MediaCommander platform. 
+
+MediaCommander offers simple folder import capabilities from the following plugins:
+* [FileBird](https://1.envato.market/getfilebird) by NinjaTeam
+* [WordPress Real Media Library](https://1.envato.market/getrealmedialibrary) by Devowl
+
 
 ✅ **Color Folders:** Enhance visual appeal by adding a splash of color to your folders with just a few clicks. Set a color for each folder to create a vibrant and clear folder structure, making it easier to identify and locate specific content at a glance.
 
@@ -107,13 +117,13 @@ We understand that the WordPress community thrives on diversity, with an extensi
 
 
 ###🎓 Conclusion
-Are you ready to take your WordPress media management to new heights? Embrace the power of MediaCommander, the revolutionary plugin that transforms the way you organize and control your content. With MediaCommander, you can simplify the complex, enhance your efficiency, and conquer the challenges of media management. Try MediaCommander today and elevate your content to new levels of excellence. Embrace the future of WordPress media management with MediaCommander – your trusted companion on the path to success.
+Are you ready to take your WordPress media management to new heights? Embrace the power of MediaCommander, the revolutionary plugin that transforms the way you organize and control your content. With MediaCommander, you can simplify the complex, enhance your efficiency, and conquer the challenges of media management. Unleash your media management with this powerful tool, featuring an intuitive filemanager dashboard, seamlessly navigate, organize, and utilize your media collection with ease. Try our plugin today and elevate your content to new levels of excellence. Embrace the future of WordPress media management with MediaCommander – your trusted companion on the path to success.
 
-Additionally, MediaCommander offers time-saving features that streamline your workflow. Easily upload, rename, and move files in bulk, saving you precious time and effort. The plugin also includes a user-friendly interface, making it accessible to users of all skill levels. With MediaCommander, you can focus on creating compelling content, secure in the knowledge that your files are organized, optimized, and efficiently managed.
+Additionally, MediaCommander offers time-saving features that streamline your workflow. Easily upload, rename, and move files in bulk, saving you precious time and effort. The plugin also includes a user-friendly interface, making it accessible to users of all skill levels. With this plugin data navigator, you can focus on creating compelling content, secure in the knowledge that your files are organized, optimized, and efficiently managed.
 
 But MediaCommander isn't just about functionality; it also enhances your WordPress experience with a sleek and intuitive design. The plugin integrates seamlessly into your WordPress dashboard, providing a familiar and user-friendly environment for managing your content. A well-organized backend means you can spend less time searching and more time doing what matters most - creating engaging content and growing your online presence. 
 
-So why settle for cluttered and disorganized content? Elevate your WordPress game with MediaCommander and transform how you manage your files. With its directory structure, flexibility, and user-friendly design, MediaCommander is the ultimate tool for anyone seeking structure, organization, and optimization for their WordPress content.
+So why settle for cluttered and disorganized content? Elevate your WordPress game with MediaCommander and transform how you manage your files as commander or superviser. With its directory structure, flexibility, and user-friendly design, MediaCommander is the ultimate tool for anyone seeking structure, organization, and optimization for their WordPress content.
 
 
 ###💼 GDPR & Privacy
@@ -148,7 +158,7 @@ Once activated, the plugin will automatically enable the folder manager for the 
 When you delete a folder, all items (pages, posts, media files, etc.) that were linked to that folder are not deleted. It simply removes the link between them and the folder, after which all items become available and visible in a special 'Uncategorized' virtual directory.
 
 = If a folder is deleted will the media file in the folder be deleted too? =
-No, only the folder is removed.
+No, only the folder is removed. But there is also an option that allows you to delete all attachments to a folder too.
 
 = Nothing happened after the image was replaced =
 Most likely, your browser is still caching the old image, so you are seeing the old image instead of the replaced image. Try performing a hard refresh while viewing the page (Ctrl + F5 on Windows, Apple + R / Command + R on Mac).
@@ -169,10 +179,13 @@ Without a doubt, MediaCommander works with most popular web page builders such a
 No. The folders created by our plugin are virtual folders, so the WordPress uploads directory remains intact, as do its contents in the form of media files.
 
 = Where is the developer version hosted? =
-The developer version is avalible [here](https://github.com/yalogica/mediacommander).
+The developer version is available [here](https://github.com/yalogica/mediacommander).
 
 = I'd like access to more features and support. How can I get this? =
 You can access additional features and support by visiting our website and [purchasing the pro version](https://yalogica.com/mediacommander/). By purchasing the plugin, you get access to the full version of the MediaCommander WordPress plugin, automatic updates, and support.
+
+= Is that a one-time payment for MediaCommander Pro? =
+Absolutely!!! MediaCommander has a lifetime license plan too. All you have to do is pay a **one-time** fee and you can use our plugin and get unlimited updates.
 
 
 == Installation ==
@@ -186,6 +199,15 @@ You’re done. Enjoy.
 
 
 == Changelog ===
+
+= 2.3.1 =
+* Mod: library update
+
+= 2.3.0 =
+* New: option to delete attached items with folders
+* Mod: the "access roles" section has been moved to the "permissions" panel
+* Fix: media details, undefined indexes: width & height
+* Fix: upload media files to a selected folder with view-only permissions
 
 = 2.2.0 =
 * New: block for image gallery (Gutenberg)

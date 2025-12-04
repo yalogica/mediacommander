@@ -1,5 +1,5 @@
 <?php
-namespace MediaCommander\Models;
+namespace Yalogica\MediaCommander\Models;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -9,7 +9,7 @@ class SecurityProfilesModel {
 
     public static function init() {
         global $wpdb;
-        $tableSecurityProfiles = HelperModel::getTableName( HelperModel::SECURITY_PROFILES );
+        $tableSecurityProfiles = esc_sql( HelperModel::getTableName( HelperModel::SECURITY_PROFILES ) );
 
         $records = [
             [ 'id' => self::COMMON_FOLDERS ],
@@ -58,7 +58,7 @@ class SecurityProfilesModel {
 
     public static function getPredefinedItems() {
         global $wpdb;
-        $tableSecurityProfiles = HelperModel::getTableName( HelperModel::SECURITY_PROFILES );
+        $tableSecurityProfiles = esc_sql( HelperModel::getTableName( HelperModel::SECURITY_PROFILES ) );
 
         $sql = "
             SELECT SP.id, SP.title, SP.description
@@ -90,7 +90,7 @@ class SecurityProfilesModel {
 
     public static function getAllItems() {
         global $wpdb;
-        $tableSecurityProfiles = HelperModel::getTableName( HelperModel::SECURITY_PROFILES );
+        $tableSecurityProfiles = esc_sql( HelperModel::getTableName( HelperModel::SECURITY_PROFILES ) );
 
         $sql = "
             SELECT SP.id, SP.title, SP.description
@@ -122,7 +122,7 @@ class SecurityProfilesModel {
 
     public static function getItems( $page, $perpage = 10 ) {
         global $wpdb;
-        $tableSecurityProfiles = HelperModel::getTableName( HelperModel::SECURITY_PROFILES );
+        $tableSecurityProfiles = esc_sql( HelperModel::getTableName( HelperModel::SECURITY_PROFILES ) );
 
         $page = intval( $page, 10 );
         $page = $page == 0 ? 1 : $page;
@@ -177,15 +177,15 @@ class SecurityProfilesModel {
                 $ids = implode( ',', $ids );
 
                 global $wpdb;
-                $tableSecurityProfiles = HelperModel::getTableName( HelperModel::SECURITY_PROFILES );
-                $tableFolderTypes = HelperModel::getTableName( HelperModel::FOLDER_TYPES );
+                $tableSecurityProfiles = esc_sql( HelperModel::getTableName( HelperModel::SECURITY_PROFILES ) );
+                $tableFolderTypes = esc_sql( HelperModel::getTableName( HelperModel::FOLDER_TYPES ) );
 
                 $sql = "DELETE FROM {$tableSecurityProfiles} WHERE id IN ({$ids}) OR security_profile IN ({$ids})";
-                // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+                // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter
                 $wpdb->query( $sql );
 
                 $sql = "UPDATE {$tableFolderTypes} SET security_profile = 0 WHERE security_profile IN ({$ids})";
-                // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+                // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter
                 $wpdb->query( $sql );
 
                 if ( !$wpdb->last_error ) {
@@ -199,7 +199,7 @@ class SecurityProfilesModel {
     public static function createItem( $data ) {
         if ( is_array( $data ) ) {
             global $wpdb;
-            $tableSecurityProfiles = HelperModel::getTableName( HelperModel::SECURITY_PROFILES );
+            $tableSecurityProfiles = esc_sql( HelperModel::getTableName( HelperModel::SECURITY_PROFILES ) );
 
             // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
             $wpdb->insert(
@@ -250,7 +250,7 @@ class SecurityProfilesModel {
 
     public static function getItem( $id ) {
         global $wpdb;
-        $tableSecurityProfiles = HelperModel::getTableName( HelperModel::SECURITY_PROFILES );
+        $tableSecurityProfiles = esc_sql( HelperModel::getTableName( HelperModel::SECURITY_PROFILES ) );
 
         // phpcs:disable WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
         $sql = $wpdb->prepare("
@@ -318,7 +318,7 @@ class SecurityProfilesModel {
     public static function updateItem( $id, $data ) {
         if ( is_array( $data ) ) {
             global $wpdb;
-            $tableSecurityProfiles = HelperModel::getTableName( HelperModel::SECURITY_PROFILES );
+            $tableSecurityProfiles = esc_sql( HelperModel::getTableName( HelperModel::SECURITY_PROFILES ) );
 
             // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
             $wpdb->update(

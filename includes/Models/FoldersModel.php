@@ -1,5 +1,5 @@
 <?php
-namespace MediaCommander\Models;
+namespace Yalogica\MediaCommander\Models;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -17,7 +17,7 @@ class FoldersModel {
         }
 
         global $wpdb;
-        $tableFolderTypes = HelperModel::getTableName( HelperModel::FOLDER_TYPES );
+        $tableFolderTypes = esc_sql( HelperModel::getTableName( HelperModel::FOLDER_TYPES ) );
 
         $sql = "SELECT type FROM {$tableFolderTypes}";
         // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
@@ -37,13 +37,17 @@ class FoldersModel {
     public static function getCurrentType() {
         global $typenow;
 
-        $page = basename( $_SERVER['PHP_SELF'] );
+        $page = '';
+        if ( isset( $_SERVER['PHP_SELF'] ) ) {
+            $page = basename( sanitize_text_field( wp_unslash( $_SERVER['PHP_SELF'] ) ) );
+        }
+
         $type = 'attachment';
 
         switch ( $page ) {
             case 'plugins.php': $type = 'plugins'; break;
             case 'users.php': $type = 'users'; break;
-            case 'edit.php': $type = $typenow; break;
+            case 'edit.php': $type = $typenow ?? 'attachment'; break;
         }
 
         return $type;
@@ -98,7 +102,7 @@ class FoldersModel {
 
     private static function getChildFolders( $parent, &$out ) {
         global $wpdb;
-        $tableFolders = HelperModel::getTableName( HelperModel::FOLDERS );
+        $tableFolders = esc_sql( HelperModel::getTableName( HelperModel::FOLDERS ) );
 
         // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
         $sql = $wpdb->prepare( "SELECT id FROM {$tableFolders} WHERE parent=%d ORDER BY ord", $parent );
@@ -115,7 +119,7 @@ class FoldersModel {
 
     private static function getParentAndChildFoldersForCopy( $parent, $level, &$out ) {
         global $wpdb;
-        $tableFolders = HelperModel::getTableName( HelperModel::FOLDERS );
+        $tableFolders = esc_sql( HelperModel::getTableName( HelperModel::FOLDERS ) );
 
         // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
         $sql = $wpdb->prepare( "SELECT id, owner, title, type, color, ord FROM {$tableFolders} WHERE id=%d ORDER BY ord", $parent );
@@ -144,7 +148,7 @@ class FoldersModel {
 
         if ( $rights && $rights['access_type'] && $rights['v'] ) {
             global $wpdb;
-            $tableFolders = HelperModel::getTableName( HelperModel::FOLDERS );
+            $tableFolders = esc_sql( HelperModel::getTableName( HelperModel::FOLDERS ) );
 
             switch( $rights['access_type'] ) {
                 case SecurityProfilesModel::COMMON_FOLDERS: {
@@ -226,7 +230,7 @@ class FoldersModel {
         if ( $rights && $rights['access_type'] && $rights['e'] ) {
             if ( is_array( $ids ) && count( $ids ) > 0 ) {
                 global $wpdb;
-                $tableFolders = HelperModel::getTableName( HelperModel::FOLDERS );
+                $tableFolders = esc_sql( HelperModel::getTableName( HelperModel::FOLDERS ) );
 
                 $folders_to_edit = [];
                 $ids = implode( ',', array_map( 'intval', $ids ) );
@@ -333,14 +337,14 @@ class FoldersModel {
         return null;
     }
 
-    public static function deleteFolders( $type, $ids ) {
+    public static function deleteFolders( $type, $ids, $deleteAttachments ) {
         $rights = UserModel::getRights( $type );
 
         if ( $rights && $rights['access_type'] && $rights['d'] ) {
             if ( is_array( $ids ) && count( $ids ) > 0 ) {
                 global $wpdb;
-                $tableFolders = HelperModel::getTableName( HelperModel::FOLDERS );
-                $tableAttachments = HelperModel::getTableName( HelperModel::ATTACHMENTS );
+                $tableFolders = esc_sql( HelperModel::getTableName( HelperModel::FOLDERS ) );
+                $tableAttachments = esc_sql( HelperModel::getTableName( HelperModel::ATTACHMENTS ) );
 
                 $folders_to_delete = [];
                 $ids = implode( ',', array_map( 'intval', $ids ) );
@@ -370,6 +374,17 @@ class FoldersModel {
 
                     $ids = implode( ',', array_map( 'intval', $folders ) );
 
+                    if ( $deleteAttachments ) {
+                        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnquotedComplexPlaceholder
+                        $sql = $wpdb->prepare( "SELECT attachment_id as id FROM {$tableAttachments} WHERE folder_id IN(%1s)", $ids );
+                        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+                        $attachment_ids = $wpdb->get_col( $sql );
+
+                        foreach ( $attachment_ids as $attachment_id ) {
+                            wp_delete_post( $attachment_id );
+                        }
+                    }
+
                     // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnquotedComplexPlaceholder
                     $sql = $wpdb->prepare( "DELETE FROM {$tableAttachments} WHERE folder_id IN(%1s)", $ids );
                     // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
@@ -395,7 +410,7 @@ class FoldersModel {
 
         if ( $rights && $rights['access_type'] && $rights['c'] ) {
             global $wpdb;
-            $tableFolders = HelperModel::getTableName( HelperModel::FOLDERS );
+            $tableFolders = esc_sql( HelperModel::getTableName( HelperModel::FOLDERS ) );
 
             if ( $dst != 0 ) {
                 switch ( $rights['access_type'] ) {
@@ -477,8 +492,8 @@ class FoldersModel {
 
         if ( $rights && $rights['access_type'] && $rights['a'] ) {
             global $wpdb;
-            $tableFolders = HelperModel::getTableName( HelperModel::FOLDERS );
-            $tableAttachments = HelperModel::getTableName( HelperModel::ATTACHMENTS );
+            $tableFolders = esc_sql( HelperModel::getTableName( HelperModel::FOLDERS ) );
+            $tableAttachments = esc_sql( HelperModel::getTableName( HelperModel::ATTACHMENTS ) );
 
             if (  is_array( $attachments ) && count( $attachments ) > 0) {
                 $folder_dest = null;
@@ -520,12 +535,19 @@ class FoldersModel {
                 // delete previous attachments
                 // phpcs:disable WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnquotedComplexPlaceholder, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
                 $sql = $wpdb->prepare("
-                    DELETE A.* 
-                    FROM {$tableAttachments} AS A 
-                    LEFT JOIN {$tableFolders} AS F 
-                    ON F.id=A.folder_id AND F.owner=%d
-                    WHERE A.attachment_id IN(%1s)",
+                    SELECT DISTINCT A.folder_id as id
+                    FROM {$tableAttachments} AS A
+                    INNER JOIN {$tableFolders} AS F ON F.id = A.folder_id
+                    WHERE F.owner=%d AND A.attachment_id IN (%1s)",
                     $owner, $ids
+                );
+                $folder_ids = array_column( $wpdb->get_results( $sql, 'ARRAY_A' ), 'id' );
+                $folder_ids = implode( ',', array_map( 'intval', $folder_ids ) );
+
+                $sql = $wpdb->prepare("
+                    DELETE FROM {$tableAttachments}
+                    WHERE attachment_id IN(%1s) AND folder_id IN (%1s)",
+                    $ids, $folder_ids
                 );
                 $wpdb->query( $sql );
                 // phpcs:enable
@@ -573,8 +595,8 @@ class FoldersModel {
 
         if ( $rights && $rights['access_type'] && $rights['v'] ) {
             global $wpdb;
-            $tableFolders = HelperModel::getTableName( HelperModel::FOLDERS );
-            $tableAttachments = HelperModel::getTableName( HelperModel::ATTACHMENTS );
+            $tableFolders = esc_sql( HelperModel::getTableName( HelperModel::FOLDERS ) );
+            $tableAttachments = esc_sql( HelperModel::getTableName( HelperModel::ATTACHMENTS ) );
 
             $owner = $rights['access_type'] == SecurityProfilesModel::COMMON_FOLDERS ? 0 : get_current_user_id();
 
@@ -652,8 +674,8 @@ class FoldersModel {
 
     public static function updateAttachmentCounters() {
         global $wpdb;
-        $tableFolders = HelperModel::getTableName( HelperModel::FOLDERS );
-        $tableAttachments = HelperModel::getTableName( HelperModel::ATTACHMENTS );
+        $tableFolders = esc_sql( HelperModel::getTableName( HelperModel::FOLDERS ) );
+        $tableAttachments = esc_sql( HelperModel::getTableName( HelperModel::ATTACHMENTS ) );
 
         $sql = "DELETE FROM {$tableAttachments} WHERE attachment_id NOT IN (
 					SELECT A.attachment_id 
@@ -680,7 +702,7 @@ class FoldersModel {
 
     public static function getAttachments( $id, $max ) {
         global $wpdb;
-        $tableAttachments = HelperModel::getTableName(HelperModel::ATTACHMENTS);
+        $tableAttachments = esc_sql( HelperModel::getTableName(HelperModel::ATTACHMENTS) );
 
         // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
         $sql = $wpdb->prepare( "SELECT attachment_id as id FROM {$tableAttachments} WHERE folder_id = %d LIMIT %d", $id, $max );
@@ -692,7 +714,7 @@ class FoldersModel {
 
     public static function getAttachmentFiles( $id ) {
         global $wpdb;
-        $tableAttachments = HelperModel::getTableName( HelperModel::ATTACHMENTS );
+        $tableAttachments = esc_sql( HelperModel::getTableName( HelperModel::ATTACHMENTS ) );
 
         // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
         $sql = $wpdb->prepare( "SELECT attachment_id FROM {$tableAttachments} WHERE folder_id = %d", $id );
@@ -714,8 +736,8 @@ class FoldersModel {
 
     public static function exportCSV() {
         global $wpdb;
-        $tableFolders = HelperModel::getTableName( HelperModel::FOLDERS );
-        $tableAttachments = HelperModel::getTableName( HelperModel::ATTACHMENTS );
+        $tableFolders = esc_sql( HelperModel::getTableName( HelperModel::FOLDERS ) );
+        $tableAttachments = esc_sql( HelperModel::getTableName( HelperModel::ATTACHMENTS ) );
 
         $sql = "SELECT id, owner, title, parent, type, color, ord FROM {$tableFolders} ORDER BY ord, created";
         // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
@@ -763,8 +785,8 @@ class FoldersModel {
 
     public static function importFolders( $folders, $clear = false, $attachments = false ) {
         global $wpdb;
-        $tableFolders = HelperModel::getTableName( HelperModel::FOLDERS );
-        $tableAttachments = HelperModel::getTableName( HelperModel::ATTACHMENTS );
+        $tableFolders = esc_sql( HelperModel::getTableName( HelperModel::FOLDERS ) );
+        $tableAttachments = esc_sql( HelperModel::getTableName( HelperModel::ATTACHMENTS ) );
 
         if ( $clear ) {
             // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
@@ -827,8 +849,8 @@ class FoldersModel {
     public static function importAttachments( $id, $type, $owner, $attachments ) {
         if ( is_array( $attachments ) && count( $attachments ) > 0 ) {
             global $wpdb;
-            $tableFolders = HelperModel::getTableName( HelperModel::FOLDERS );
-            $tableAttachments = HelperModel::getTableName( HelperModel::ATTACHMENTS );
+            $tableFolders = esc_sql( HelperModel::getTableName( HelperModel::FOLDERS ) );
+            $tableAttachments = esc_sql( HelperModel::getTableName( HelperModel::ATTACHMENTS ) );
 
             $ids = implode( ',', array_map( 'intval', $attachments ) );
 
@@ -955,9 +977,6 @@ class FoldersModel {
             return null;
         }
         delete_transient( $transientId );
-
-        if ( function_exists( 'set_time_limit' ) ) { @set_time_limit( 0 );
-        } else if ( function_exists( 'ini_set' ) ) { @ini_set( 'max_execution_time', 0 ); }
 
         $folders_to_zip = [];
         foreach( $folders as $folder ) {

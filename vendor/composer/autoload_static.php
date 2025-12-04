@@ -7,6 +7,7 @@ namespace Composer\Autoload;
 class ComposerStaticInit6e0107dec953e9df2d32e71a668b17b0
 {
     public static $files = array (
+        '8d50dc88e56bace65e1e72f6017983ed' => __DIR__ . '/..' . '/freemius/wordpress-sdk/start.php',
         '0e6d7bf4a5811bfa5cf40c5ccd6fae6a' => __DIR__ . '/..' . '/symfony/polyfill-mbstring/bootstrap.php',
     );
 
