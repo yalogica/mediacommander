@@ -1,0 +1,9 @@
+<svg version="1.0" width="800" height="800" viewBox="0 0 64 64" xml:space="preserve" xmlns="http://www.w3.org/2000/svg">
+  <path fill="#F9EBB2" d="M62 60V14H2v46a2 2 0 0 0 2 2h56a2 2 0 0 0 2-2z" style="fill:#fff;fill-opacity:1"/>
+  <path fill="#B4CCB9" d="M2 4v8h60V4a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2z" style="fill:#bfa8d2;fill-opacity:1"/>
+  <g fill="#394240">
+    <path d="M60 0H4C1.789 0 0 1.789 0 4v56c0 2.211 1.789 4 4 4h56c2.211 0 4-1.789 4-4V4c0-2.211-1.789-4-4-4zm2 60a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V14h60v46zm0-48H2V4a2 2 0 0 1 2-2h56a2 2 0 0 1 2 2v8z" style="fill:#332243;fill-opacity:1"/>
+    <path d="M56.92 4a3 3 0 1 0 0 6 3 3 0 0 0 0-6zm0 4a1 1 0 1 1 0-2 1 1 0 1 1 0 2zM11 24h18a1 1 0 1 0 0-2H11a1 1 0 1 0 0 2zm0 6h18a1 1 0 1 0 0-2H11a1 1 0 1 0 0 2zm0 6h18a1 1 0 1 0 0-2H11a1 1 0 1 0 0 2zm0 6h18a1 1 0 1 0 0-2H11a1 1 0 1 0 0 2zm0 6h42a1 1 0 1 0 0-2H11a1 1 0 1 0 0 2zm0 6h42a1 1 0 1 0 0-2H11a1 1 0 1 0 0 2zm24-12h18a1 1 0 0 0 1-1V23a1 1 0 0 0-1-1H35a1 1 0 0 0-1 1v18a1 1 0 0 0 1 1zm1-18h16v16H36V24z" style="fill:#332243;fill-opacity:1"/>
+  </g>
+  <path fill="#F76D57" style="fill:#bfa8d2;fill-opacity:1" d="M36 24h16v16H36z"/>
+</svg>

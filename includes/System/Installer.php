@@ -1,0 +1,150 @@
+<?php
+
+namespace Yalogica\MediaCommander\System;
+
+defined('ABSPATH') || exit;
+
+use Yalogica\MediaCommander\Models\ConfigModel;
+use Yalogica\MediaCommander\Models\FolderTypesModel;
+use Yalogica\MediaCommander\Models\HelperModel;
+use Yalogica\MediaCommander\Models\SecurityProfilesModel;
+
+class Installer
+{
+  public const OPTION_VERSION = 'mediacommander_version';
+  public const OPTION_DB_VERSION = 'mediacommander_db_version';
+  public const OPTION_DATE = 'mediacommander_date';
+
+  public function __construct()
+  {
+    $this->init();
+  }
+
+  private function init()
+  {
+    $this->initConfig();
+
+    $this->createDbTables();
+    $this->initDbTables();
+
+    $this->updateVersion();
+    $this->updateDbVersion();
+    $this->updateDate();
+  }
+
+  private function initConfig()
+  {
+    ConfigModel::init();
+  }
+
+  private function updateVersion()
+  {
+    $stored = (string) get_option(self::OPTION_VERSION, '');
+    if ($stored === '' || version_compare($stored, MEDIACOMMANDER_PLUGIN_VERSION, '<')) {
+      update_option(self::OPTION_VERSION, MEDIACOMMANDER_PLUGIN_VERSION, false);
+    }
+  }
+
+  private function updateDbVersion()
+  {
+    $stored = (string) get_option(self::OPTION_DB_VERSION, '');
+    if ($stored === '' || version_compare($stored, MEDIACOMMANDER_PLUGIN_DB_VERSION, '<')) {
+      update_option(self::OPTION_DB_VERSION, MEDIACOMMANDER_PLUGIN_DB_VERSION, false);
+    }
+  }
+
+  private function updateDate()
+  {
+    $date = (int) get_option(self::OPTION_DATE, 0);
+    if ($date === 0) {
+      update_option(self::OPTION_DATE, time(), false);
+    }
+  }
+
+  private function getDbSchema()
+  {
+    global $wpdb;
+
+    $charsetCollate = $wpdb->has_cap('collation') ? $wpdb->get_charset_collate() : '';
+
+    $tableFolders = HelperModel::getTableName(HelperModel::FOLDERS);
+    $tableAttachments = HelperModel::getTableName(HelperModel::ATTACHMENTS);
+    $tableFolderTypes = HelperModel::getTableName(HelperModel::FOLDER_TYPES);
+    $tableSecurityProfiles = HelperModel::getTableName(HelperModel::SECURITY_PROFILES);
+
+    $tables = "
+            CREATE TABLE {$tableFolderTypes} (
+                id bigint unsigned NOT NULL AUTO_INCREMENT,
+                type varchar(20) NOT NULL,
+                title varchar(255) NOT NULL DEFAULT '',
+                security_profile bigint NOT NULL DEFAULT 0,
+                enabled tinyint NOT NULL DEFAULT 1,
+                created_by bigint NOT NULL DEFAULT 0,
+                modified_by bigint NOT NULL DEFAULT 0,
+                created datetime NOT NULL,
+                modified datetime NOT NULL,
+                PRIMARY KEY (id),
+                UNIQUE KEY (type)
+		    ) {$charsetCollate};
+
+            CREATE TABLE {$tableSecurityProfiles} (
+                id bigint NOT NULL AUTO_INCREMENT,
+                title varchar(255) NOT NULL DEFAULT '',
+                description longtext NOT NULL DEFAULT '',
+                security_profile bigint NOT NULL DEFAULT 0,
+                role varchar(255) NOT NULL DEFAULT '',
+                user bigint unsigned NOT NULL DEFAULT 0,
+                access_type tinyint NOT NULL DEFAULT 0,
+                c tinyint NOT NULL DEFAULT 0,
+                v tinyint NOT NULL DEFAULT 0,
+                e tinyint NOT NULL DEFAULT 0,
+                d tinyint NOT NULL DEFAULT 0,
+                a tinyint NOT NULL DEFAULT 0,
+                created_by bigint NOT NULL DEFAULT 0,
+                modified_by bigint NOT NULL DEFAULT 0,
+                created datetime NOT NULL,
+                modified datetime NOT NULL,
+                PRIMARY KEY (id)
+            ) {$charsetCollate};
+
+            CREATE TABLE {$tableFolders} (
+                id bigint unsigned NOT NULL AUTO_INCREMENT,
+                parent bigint unsigned NOT NULL DEFAULT 0,
+                type varchar(20) NOT NULL DEFAULT 'attachment',
+                owner bigint NOT NULL DEFAULT 0,
+                title varchar(255) NOT NULL DEFAULT '',
+                color varchar(7) NOT NULL DEFAULT '',
+                ord bigint unsigned NOT NULL DEFAULT 0,
+                count bigint unsigned NOT NULL DEFAULT 0,
+                created_by bigint NOT NULL DEFAULT 0,
+                modified_by bigint NOT NULL DEFAULT 0,
+                created datetime NOT NULL,
+                modified datetime NOT NULL,
+                PRIMARY KEY (id)
+		    ) {$charsetCollate};
+
+            CREATE TABLE {$tableAttachments} (
+                folder_id bigint unsigned NOT NULL,
+                attachment_id bigint unsigned NOT NULL,
+                UNIQUE KEY `folder_attachment` (`folder_id`,`attachment_id`)
+            ) {$charsetCollate};
+        ";
+
+    return $tables;
+  }
+
+  private function createDbTables()
+  {
+    global $wpdb;
+    $wpdb->hide_errors();
+
+    require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+    dbDelta($this->getDbSchema());
+  }
+
+  private function initDbTables()
+  {
+    FolderTypesModel::init();
+    SecurityProfilesModel::init();
+  }
+}
