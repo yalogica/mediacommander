@@ -73,62 +73,64 @@ class Installer
     $tableSecurityProfiles = HelperModel::getTableName(HelperModel::SECURITY_PROFILES);
 
     $tables = "
-            CREATE TABLE {$tableFolderTypes} (
-                id bigint unsigned NOT NULL AUTO_INCREMENT,
-                type varchar(20) NOT NULL,
-                title varchar(255) NOT NULL DEFAULT '',
-                security_profile bigint NOT NULL DEFAULT 0,
-                enabled tinyint NOT NULL DEFAULT 1,
-                created_by bigint NOT NULL DEFAULT 0,
-                modified_by bigint NOT NULL DEFAULT 0,
-                created datetime NOT NULL,
-                modified datetime NOT NULL,
-                PRIMARY KEY (id),
-                UNIQUE KEY (type)
-		    ) {$charsetCollate};
+      CREATE TABLE {$tableFolderTypes} (
+        id bigint unsigned NOT NULL AUTO_INCREMENT,
+        type varchar(20) NOT NULL,
+        title varchar(255) NOT NULL DEFAULT '',
+        security_profile bigint NOT NULL DEFAULT 0,
+        enabled tinyint NOT NULL DEFAULT 1,
+        created_by bigint NOT NULL DEFAULT 0,
+        modified_by bigint NOT NULL DEFAULT 0,
+        created datetime NOT NULL,
+        modified datetime NOT NULL,
+        PRIMARY KEY (id),
+        UNIQUE KEY (type)
+      ) {$charsetCollate};
 
-            CREATE TABLE {$tableSecurityProfiles} (
-                id bigint NOT NULL AUTO_INCREMENT,
-                title varchar(255) NOT NULL DEFAULT '',
-                description longtext NOT NULL DEFAULT '',
-                security_profile bigint NOT NULL DEFAULT 0,
-                role varchar(255) NOT NULL DEFAULT '',
-                user bigint unsigned NOT NULL DEFAULT 0,
-                access_type tinyint NOT NULL DEFAULT 0,
-                c tinyint NOT NULL DEFAULT 0,
-                v tinyint NOT NULL DEFAULT 0,
-                e tinyint NOT NULL DEFAULT 0,
-                d tinyint NOT NULL DEFAULT 0,
-                a tinyint NOT NULL DEFAULT 0,
-                created_by bigint NOT NULL DEFAULT 0,
-                modified_by bigint NOT NULL DEFAULT 0,
-                created datetime NOT NULL,
-                modified datetime NOT NULL,
-                PRIMARY KEY (id)
-            ) {$charsetCollate};
+      CREATE TABLE {$tableSecurityProfiles} (
+        id bigint NOT NULL AUTO_INCREMENT,
+        title varchar(255) NOT NULL DEFAULT '',
+        description longtext NOT NULL DEFAULT '',
+        security_profile bigint NOT NULL DEFAULT 0,
+        role varchar(255) NOT NULL DEFAULT '',
+        user bigint unsigned NOT NULL DEFAULT 0,
+        access_type tinyint NOT NULL DEFAULT 0,
+        c tinyint NOT NULL DEFAULT 0,
+        v tinyint NOT NULL DEFAULT 0,
+        e tinyint NOT NULL DEFAULT 0,
+        d tinyint NOT NULL DEFAULT 0,
+        a tinyint NOT NULL DEFAULT 0,
+        created_by bigint NOT NULL DEFAULT 0,
+        modified_by bigint NOT NULL DEFAULT 0,
+        created datetime NOT NULL,
+        modified datetime NOT NULL,
+        PRIMARY KEY (id)
+      ) {$charsetCollate};
 
-            CREATE TABLE {$tableFolders} (
-                id bigint unsigned NOT NULL AUTO_INCREMENT,
-                parent bigint unsigned NOT NULL DEFAULT 0,
-                type varchar(20) NOT NULL DEFAULT 'attachment',
-                owner bigint NOT NULL DEFAULT 0,
-                title varchar(255) NOT NULL DEFAULT '',
-                color varchar(7) NOT NULL DEFAULT '',
-                ord bigint unsigned NOT NULL DEFAULT 0,
-                count bigint unsigned NOT NULL DEFAULT 0,
-                created_by bigint NOT NULL DEFAULT 0,
-                modified_by bigint NOT NULL DEFAULT 0,
-                created datetime NOT NULL,
-                modified datetime NOT NULL,
-                PRIMARY KEY (id)
-		    ) {$charsetCollate};
+      CREATE TABLE {$tableFolders} (
+        id bigint unsigned NOT NULL AUTO_INCREMENT,
+        parent bigint unsigned NOT NULL DEFAULT 0,
+        type varchar(20) NOT NULL DEFAULT 'attachment',
+        owner bigint NOT NULL DEFAULT 0,
+        title varchar(255) NOT NULL DEFAULT '',
+        color varchar(7) NOT NULL DEFAULT '',
+        ord bigint unsigned NOT NULL DEFAULT 0,
+        count bigint unsigned NOT NULL DEFAULT 0,
+        created_by bigint NOT NULL DEFAULT 0,
+        modified_by bigint NOT NULL DEFAULT 0,
+        created datetime NOT NULL,
+        modified datetime NOT NULL,
+        PRIMARY KEY (id)
+      ) {$charsetCollate};
 
-            CREATE TABLE {$tableAttachments} (
-                folder_id bigint unsigned NOT NULL,
-                attachment_id bigint unsigned NOT NULL,
-                UNIQUE KEY `folder_attachment` (`folder_id`,`attachment_id`)
-            ) {$charsetCollate};
-        ";
+      CREATE TABLE {$tableAttachments} (
+        folder_id bigint unsigned NOT NULL,
+        attachment_id bigint unsigned NOT NULL,
+        is_link tinyint NOT NULL DEFAULT 0,
+        UNIQUE KEY `folder_attachment` (`folder_id`,`attachment_id`),
+        KEY `attachment_id` (`attachment_id`)
+      ) {$charsetCollate};
+    ";
 
     return $tables;
   }

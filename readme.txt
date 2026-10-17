@@ -3,7 +3,7 @@ Contributors: yalogica, freemius
 Tags: file manager, media library, media folder, media library folders, media library categories
 Requires at least: 6.0
 Tested up to: 7.1
-Stable tag: 2.6.0
+Stable tag: 2.7.0
 Requires PHP: 7.4
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
@@ -35,6 +35,7 @@ Discover the joy of efficient media management with MediaCommander. This innovat
 **MediaCommander Pro** includes everything from Free, plus:
 ☑️ **Advanced folder access rules per role/user**  
 ☑️ **Folders for Posts and Pages**
+☑️ **Links (shortcuts) keep one item in multiple folders**
 ☑️ **Custom folder sorting**  
 ☑️ **Default folder color configuration**  
 ☑️ **Option to hide folder item counters**  
@@ -187,6 +188,9 @@ With this plugin, you can easily organize posts, pages, media library, and custo
 = I installed the plugin, what's next? =
 Once activated, the plugin will automatically enable the folder manager for the media library and user list. Just go to "Users" -> "All users" or "Media" -> "Library" screen and start organizing your items (users, media files) in the WordPress admin area. On the left will be a panel where you can manage your directories. In the toolbar, click on "Plus Folder" to add the first folder, enter its name, and set the color. Your first directory is ready.
 
+= Can I place the same item in several folders? =
+Yes! Hold Alt (or Ctrl+Shift) while dragging an item to a folder to create a link (shortcut) instead of moving it. The item will remain in the original folder and also appear in the new one, marked with a "Link" badge. To remove a link, simply drag the item from the linked folder to "All Items" or "Uncategorized" — the original placement stays intact. Note: this feature is available in the Pro version.
+
 = What happens when a folder is deleted? =
 When you delete a folder, all items (pages, posts, media files, etc.) that were linked to that folder are not deleted. It simply removes the link between them and the folder, after which all items become available and visible in a special 'Uncategorized' virtual directory.
 
@@ -232,6 +236,10 @@ You’re done. Enjoy.
 
 
 == Changelog ===
+
+= 2.7.0 =
+* Added: links (shortcuts) - attach an item to multiple folders by dragging it with Alt or Ctrl+Shift; linked items are marked with a badge in grid and list modes, and links can be removed by dragging to the "All Items" or "Uncategorized" folder
+* Added: link badges for media, posts, pages, and custom post type lists
 
 = 2.6.0 =
 * Changed: updated the Freemius SDK library to 2.13.5

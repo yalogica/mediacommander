@@ -36,6 +36,7 @@
         $ghost: null,
         $target: null,
         items: null,
+        mode: null,
         isTouch: false,
         timerId: null
       },
@@ -97,6 +98,16 @@
                 createToolbar: function() {
                   App.data.attachmentsBrowser = this, App.data.mediaBrowse = !!(this.model.attributes.router && "browse" == this.model.attributes.router), 
                   App.fn.updateMediaGridSort(), attachmentsBrowser.prototype.createToolbar.apply(this, arguments);
+                }
+              });
+            }
+            if (wp.media.view.Attachment && wp.media.view.Attachment.Library) {
+              const attachmentLibraryView = wp.media.view.Attachment.Library;
+              wp.media.view.Attachment.Library = wp.media.view.Attachment.Library.extend({
+                render: function() {
+                  return attachmentLibraryView.prototype.render.apply(this, arguments), this.model && this.model.get("mcmd_is_link") ? (this.$el.addClass("mcmd-is-link"), 
+                  this.$el.find(".mcmd-link-badge").length || this.$el.append('<span class="mcmd-link-badge" title="Link"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></span>')) : (this.$el.removeClass("mcmd-is-link"), 
+                  this.$el.find(".mcmd-link-badge").remove()), this;
                 }
               });
             }
@@ -387,11 +398,13 @@
         App.data.dragdrop.$ghost = $("<div>").addClass("mcmd-attachment-drag-ghost"), App.data.media ? App.globals.data.rights.a && $(".media-frame .media-frame-content").on("mousedown touchstart", ".attachment", App.fn.onAttachmentDown) : (App.data.ui.$list.toggleClass("mcmd-can-attach", App.globals.data.rights.a), 
         App.globals.data.rights.a && $("#the-list").on("mousedown touchstart", ".check-column", App.fn.onAttachmentDown));
       },
-      dropAttachments: (folder, attachments) => {
-        folder && App.data.folder.active != folder && attachments && attachments.length && App.fn.updateData("attach", {
+      dropAttachments: (folder, attachments, mode = "move") => {
+        folder && App.data.folder.active != folder && attachments && attachments.length && ("link" !== mode || -1 != folder && -2 != folder) && App.fn.updateData("attach", {
           type: App.globals.data.type,
           folder: folder,
-          attachments: attachments
+          attachments: attachments,
+          link: "link" === mode,
+          from: App.data.folder.active
         }).done(folders => {
           App.fn.updateFoldersAttachCount(folders), App.fn.activateFolder(App.data.folder.active, false, true);
         }).fail(() => {
@@ -792,13 +805,14 @@
             $('.media-frame .media-frame-content .attachment[aria-checked="true"]').each(function() {
               items.push($(this).attr("data-id"));
             }), 0 == items.length && items.push($(e.currentTarget).attr("data-id")), items.length && (App.data.dragdrop.isTouch = isTouch, 
-            App.data.dragdrop.items = items, App.data.dragdrop.$ghost.text("Move " + items.length + " items").appendTo("body"), 
+            App.data.dragdrop.items = items, App.data.dragdrop.$ghost.text("Move Items (" + items.length + ")").appendTo("body"), 
             isTouch ? (document.addEventListener("touchmove", App.fn.onTouchMove, {
               passive: false
             }), $(window).on("touchmove", App.fn.onAttachmentFolderUnderPointer), $(window).on("touchmove", App.fn.onAttachmentMove), 
             $(window).on("touchend", App.fn.onAttachmentUp)) : (App.data.ui.$sidebar.on("mouseenter", ".mcmd-tree-item", App.fn.onAttachmentFolderEnter), 
             App.data.ui.$sidebar.on("mouseleave", ".mcmd-tree-item", App.fn.onAttachmentFolderLeave), 
-            $(window).on("mousemove", App.fn.onAttachmentMove), $(window).on("mouseup", App.fn.onAttachmentUp)));
+            $(window).on("mousemove", App.fn.onAttachmentMove), $(window).on("mouseup", App.fn.onAttachmentUp), 
+            $(window).on("keydown keyup", App.fn.onAttachmentKeys)));
           }
         } else {
           !isTouch && e.preventDefault(), !isTouch && e.stopImmediatePropagation();
@@ -819,33 +833,45 @@
           $(`#the-list input[name='${name}[]']:checked`).each(function() {
             items.push($(this).val());
           }), 0 == items.length && items.push($(e.currentTarget).find("input").val()), items.length && (App.data.dragdrop.isTouch = isTouch, 
-          App.data.dragdrop.items = items, App.data.dragdrop.$ghost.text("Move " + items.length + " items").appendTo("body"), 
+          App.data.dragdrop.items = items, App.data.dragdrop.$ghost.text("Move Items (" + items.length + ")").appendTo("body"), 
           isTouch ? (document.addEventListener("touchmove", App.fn.onTouchMove, {
             passive: false
           }), $(window).on("touchmove", App.fn.onAttachmentFolderUnderPointer), $(window).on("touchmove", App.fn.onAttachmentMove), 
           $(window).on("touchend", App.fn.onAttachmentUp)) : (App.data.ui.$sidebar.on("mouseenter", ".mcmd-tree-item", App.fn.onAttachmentFolderEnter), 
           App.data.ui.$sidebar.on("mouseleave", ".mcmd-tree-item", App.fn.onAttachmentFolderLeave), 
-          $(window).on("mousemove", App.fn.onAttachmentMove), $(window).on("mouseup", App.fn.onAttachmentUp)));
+          $(window).on("mousemove", App.fn.onAttachmentMove), $(window).on("mouseup", App.fn.onAttachmentUp), 
+          $(window).on("keydown keyup", App.fn.onAttachmentKeys)));
         }
+      },
+      updateDragMode: isLink => {
+        isLink && !App.globals.data.enable_links && (isLink = false), isLink !== ("link" === App.data.dragdrop.mode) && (App.data.dragdrop.mode = isLink ? "link" : "move", 
+        App.data.dragdrop.$ghost.text(isLink ? "Create Links (" + App.data.dragdrop.items.length + ")" : "Move Items (" + App.data.dragdrop.items.length + ")").toggleClass("mcmd-link-mode", isLink)), 
+        $("body").toggleClass("mcmd-link-dragging", isLink);
+      },
+      onAttachmentKeys: e => {
+        App.data.dragdrop.items && App.data.dragdrop.items.length && ("Alt" === e.key && e.preventDefault(), 
+        App.fn.updateDragMode(e.altKey || e.ctrlKey && e.shiftKey));
       },
       onAttachmentMove: e => {
         App.data.dragdrop.items && App.data.dragdrop.items.length && (e = App.data.dragdrop.isTouch ? e.originalEvent.touches[0] : e, 
         App.data.dragdrop.$ghost.addClass("mcmd-active").css({
           top: e.clientY + 5 + "px",
           left: e.clientX + 5 + "px"
-        }));
+        }), App.data.dragdrop.isTouch || App.fn.updateDragMode(e.altKey || e.ctrlKey && e.shiftKey));
       },
       onAttachmentUp: () => {
-        const folder = App.data.dragdrop.$target ? App.data.dragdrop.$target.attr("data-id") : null, items = App.data.dragdrop.items;
-        App.data.dragdrop.$ghost.text("").removeClass("mcmd-active").detach(), App.data.dragdrop.$target && App.data.dragdrop.$target.removeClass("mcmd-droppable"), 
-        App.data.dragdrop.$target = null, App.data.dragdrop.items = null, clearTimeout(App.data.dragdrop.timerId), 
+        const folder = App.data.dragdrop.$target ? App.data.dragdrop.$target.attr("data-id") : null, items = App.data.dragdrop.items, mode = App.data.dragdrop.mode || "move";
+        App.data.dragdrop.$ghost.text("").removeClass("mcmd-active mcmd-link-mode").detach(), 
+        App.data.dragdrop.$target && App.data.dragdrop.$target.removeClass("mcmd-droppable"), 
+        App.data.dragdrop.$target = null, App.data.dragdrop.items = null, App.data.dragdrop.mode = null, 
+        $("body").removeClass("mcmd-link-dragging"), clearTimeout(App.data.dragdrop.timerId), 
         App.data.dragdrop.timerId = null, App.data.dragdrop.isTouch ? (document.removeEventListener("touchmove", App.fn.onTouchMove, {
           passive: false
         }), $(window).off("touchmove", App.fn.onAttachmentFolderUnderPointer), $(window).off("touchmove", App.fn.onAttachmentMove), 
         $(window).off("touchend", App.fn.onAttachmentUp)) : (App.data.ui.$sidebar.off("mouseenter", ".mcmd-tree-item", App.fn.onAttachmentFolderEnter), 
         App.data.ui.$sidebar.off("mouseleave", ".mcmd-tree-item", App.fn.onAttachmentFolderLeave), 
-        $(window).off("mousemove", App.fn.onAttachmentMove), $(window).off("mouseup", App.fn.onAttachmentUp)), 
-        App.fn.dropAttachments(folder, items);
+        $(window).off("mousemove", App.fn.onAttachmentMove), $(window).off("mouseup", App.fn.onAttachmentUp), 
+        $(window).off("keydown keyup", App.fn.onAttachmentKeys)), App.fn.dropAttachments(folder, items, mode);
       },
       onMediaModalPrepare: () => {},
       onMediaModalOpen: () => {

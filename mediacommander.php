@@ -3,7 +3,7 @@
  * Plugin Name:       MediaCommander - Bring Folders to Media, Posts, and Pages
  * Plugin URI:        https://yalogica.com/mediacommander/
  * Description:       Improve your WordPress media library with a more intuitive way. Simply drag & drop items into folders for effortless accessibility.
- * Version:           2.6.0
+ * Version:           2.7.0
  * Requires at least: 6.0
  * Requires PHP:      7.4
  * Author:            Yalogica
@@ -27,8 +27,8 @@ if (class_exists('Yalogica\\MediaCommander\\Plugin')) {
 }
 
 define('MEDIACOMMANDER_PLUGIN_NAME', 'mediacommander');
-define('MEDIACOMMANDER_PLUGIN_VERSION', '2.6.0');
-define('MEDIACOMMANDER_PLUGIN_DB_VERSION', '2.0');
+define('MEDIACOMMANDER_PLUGIN_VERSION', '2.7.0');
+define('MEDIACOMMANDER_PLUGIN_DB_VERSION', '3.0');
 define('MEDIACOMMANDER_PLUGIN_DB_TABLE_PREFIX', 'mediacommander');
 define("MEDIACOMMANDER_PLUGIN_SHORTCODE_NAME", 'mediacommander');
 define('MEDIACOMMANDER_PLUGIN_BASE_NAME', plugin_basename(__FILE__));

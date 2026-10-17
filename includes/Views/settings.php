@@ -79,6 +79,19 @@ defined('ABSPATH') || exit;
           <div class="mcmd-spacer"></div>
           <div class="mcmd-option" al-attr.class.mcmd-lock="!App.fn.isLicenseActive()">
             <div class="mcmd-description">
+              <div class="mcmd-title"><?php esc_html_e("Links (shortcuts)", 'mediacommander'); ?></div>
+              <div class="mcmd-text"><?php esc_html_e("Drag items with the Alt or Ctrl+Shift key held down to create links (shortcuts) instead of moving them, so a single item can be placed in multiple folders. Linked items are marked with a badge.", 'mediacommander'); ?></div>
+            </div>
+            <div class="mcmd-data">
+              <div al-toggle="App.data.config.enable_links" al-on.click.stop="App.fn.config.onCheckboxChange($event)"></div>
+              <div class="mcmd-upgrade"><i class="mcmd-icon"></i>
+                <div al-html="App.globals.msg.upgrade"></div>
+              </div>
+            </div>
+          </div>
+          <div class="mcmd-spacer"></div>
+          <div class="mcmd-option" al-attr.class.mcmd-lock="!App.fn.isLicenseActive()">
+            <div class="mcmd-description">
               <div class="mcmd-title"><?php esc_html_e("Disable folder counter", 'mediacommander'); ?></div>
               <div class="mcmd-text"><?php esc_html_e("Disable the display of the number of items attached to each folder.", 'mediacommander'); ?></div>
             </div>

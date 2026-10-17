@@ -41,8 +41,8 @@
     },
     default: {
       config: {
-        token: null,
         default_color: null,
+        enable_links: true,
         disable_counter: false,
         disable_ajax: false,
         infinite_scrolling: false,

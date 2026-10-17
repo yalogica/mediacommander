@@ -9,6 +9,7 @@ class ConfigModel
   const OPTION_KEY = 'mediacommander_config';
   const DEFAULT_CONFIG = [
     'roles' => ['administrator'],
+    'enable_links' => false,
     'default_color' => NULL,
     'disable_counter' => false,
     'disable_ajax' => false,

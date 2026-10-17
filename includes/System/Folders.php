@@ -34,6 +34,10 @@ class Folders
       add_filter('wp_prepare_attachment_for_js', [$this, 'prepareAttachment'], 99, 5);
     }
 
+    add_filter('wp_prepare_attachment_for_js', [$this, 'prepareAttachmentLinkFlag'], 99, 2);
+    add_filter('display_media_states', [$this, 'displayMediaLinkState'], 10, 2);
+    add_filter('display_post_states', [$this, 'displayPostLinkState'], 10, 2);
+
     add_action('admin_enqueue_scripts', [$this, 'sidebarScripts']);
     if (defined('AVADA_VERSION')) {
       add_action('fusion_enqueue_live_scripts', [$this, 'sidebarScripts']);
@@ -123,12 +127,12 @@ class Folders
       } else if ($folder == -2) { // uncategorized
         switch ($rights['access_type']) {
           case SecurityProfilesModel::COMMON_FOLDERS: {
-              $clauses['where'] .= " AND ({$wpdb->posts}.ID NOT IN (SELECT ATTACHMENTS.attachment_id FROM {$tableAttachments} AS ATTACHMENTS LEFT JOIN {$tableFolders} AS FOLDERS ON FOLDERS.id=ATTACHMENTS.folder_id WHERE FOLDERS.owner=0))";
+              $clauses['where'] .= " AND ({$wpdb->posts}.ID NOT IN (SELECT ATTACHMENTS.attachment_id FROM {$tableAttachments} AS ATTACHMENTS LEFT JOIN {$tableFolders} AS FOLDERS ON FOLDERS.id=ATTACHMENTS.folder_id WHERE FOLDERS.owner=0 AND ATTACHMENTS.is_link=0))";
             }
             break;
           case SecurityProfilesModel::PERSONAL_FOLDERS: {
               $user_id = get_current_user_id();
-              $clauses['where'] .= " AND ({$wpdb->posts}.ID NOT IN (SELECT ATTACHMENTS.attachment_id FROM {$tableAttachments} AS ATTACHMENTS LEFT JOIN {$tableFolders} AS FOLDERS ON FOLDERS.id=ATTACHMENTS.folder_id WHERE FOLDERS.owner={$user_id}))";
+              $clauses['where'] .= " AND ({$wpdb->posts}.ID NOT IN (SELECT ATTACHMENTS.attachment_id FROM {$tableAttachments} AS ATTACHMENTS LEFT JOIN {$tableFolders} AS FOLDERS ON FOLDERS.id=ATTACHMENTS.folder_id WHERE FOLDERS.owner={$user_id} AND ATTACHMENTS.is_link=0))";
             }
             break;
         }
@@ -199,12 +203,12 @@ class Folders
     } else if ($folder == -2) { // uncategorized
       switch ($rights['access_type']) {
         case SecurityProfilesModel::COMMON_FOLDERS: {
-            $query->query_where .= " AND ($wpdb->users.ID NOT IN (SELECT ATTACHMENTS.attachment_id FROM {$tableAttachments} AS ATTACHMENTS LEFT JOIN {$tableFolders} AS FOLDERS ON FOLDERS.id=ATTACHMENTS.folder_id WHERE FOLDERS.owner=0))";
+            $query->query_where .= " AND ($wpdb->users.ID NOT IN (SELECT ATTACHMENTS.attachment_id FROM {$tableAttachments} AS ATTACHMENTS LEFT JOIN {$tableFolders} AS FOLDERS ON FOLDERS.id=ATTACHMENTS.folder_id WHERE FOLDERS.owner=0 AND ATTACHMENTS.is_link=0))";
           }
           break;
         case SecurityProfilesModel::PERSONAL_FOLDERS: {
             $user_id = get_current_user_id();
-            $query->query_where .= " AND ($wpdb->users.ID NOT IN (SELECT ATTACHMENTS.attachment_id FROM {$tableAttachments} AS ATTACHMENTS LEFT JOIN {$tableFolders} AS FOLDERS ON FOLDERS.id=ATTACHMENTS.folder_id WHERE FOLDERS.owner={$user_id}))";
+            $query->query_where .= " AND ($wpdb->users.ID NOT IN (SELECT ATTACHMENTS.attachment_id FROM {$tableAttachments} AS ATTACHMENTS LEFT JOIN {$tableFolders} AS FOLDERS ON FOLDERS.id=ATTACHMENTS.folder_id WHERE FOLDERS.owner={$user_id} AND ATTACHMENTS.is_link=0))";
           }
           break;
       }
@@ -345,6 +349,61 @@ class Folders
     return $response;
   }
 
+  public function prepareAttachmentLinkFlag($response, $attachment)
+  {
+    $is_link = false;
+
+
+    // always include the flag: backbone merges fetched data into cached models
+    // and keeps stale values for absent keys — an explicit false is required
+    // to clear the badge when the view changes to another folder or a virtual one
+    $response['mcmd_is_link'] = $is_link;
+
+    return $response;
+  }
+
+  public function displayMediaLinkState($media_states, $post)
+  {
+    if (!UserModel::hasAccess() || !isset($post->ID)) {
+      return $media_states;
+    }
+
+    // fires only on upload.php list tables
+    if (FoldersModel::getCurrentType() !== 'attachment') {
+      return $media_states;
+    }
+
+    return $this->appendLinkState($media_states, $post->ID);
+  }
+
+  public function displayPostLinkState($post_states, $post)
+  {
+    if (!UserModel::hasAccess() || !isset($post->ID)) {
+      return $post_states;
+    }
+
+    // posts/pages/CPT lists (edit.php); media has its own display_media_states filter
+    if (FoldersModel::getCurrentType() === 'attachment') {
+      return $post_states;
+    }
+
+    return $this->appendLinkState($post_states, $post->ID);
+  }
+
+  private function appendLinkState($states, $post_id)
+  {
+    // same gating as postsСlauses: badge shows exactly when the list is folder-filtered
+    $type = FoldersModel::getCurrentType();
+    $meta = UserModel::getMeta($type);
+    $folder = $meta['folder'];
+
+    if ($folder > 0 && FoldersModel::isAttachmentLink($folder, $post_id)) {
+      $states[] = '<span class="mcmd-link-state"></span>';
+    }
+
+    return $states;
+  }
+
   public function adminHead()
   {
     echo '<style>#screen-meta-links {position: absolute; right: 0;} .wrap {margin-top: 15px;}</style>';
@@ -365,10 +424,10 @@ class Folders
         'type' => $type,
         'meta' => $meta,
         'rights' => $rights,
-        'default_color' => $config['default_color'],
-        'disable_counter' => $config['disable_counter'],
-        'disable_ajax' => $config['disable_ajax'],
-        'disable_search_bar' => $config['disable_search_bar'],
+        'enable_links' => false,
+        'disable_counter' => false,
+        'disable_ajax' => false,
+        'disable_search_bar' => true,
         'media_hover_details' => $config['media_hover_details'],
         'max_upload_size' => size_format(wp_max_upload_size()),
         'url' => [

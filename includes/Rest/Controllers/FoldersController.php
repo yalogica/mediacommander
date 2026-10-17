@@ -7,6 +7,7 @@ defined('ABSPATH') || exit;
 use Yalogica\MediaCommander\Models\FoldersModel;
 use Yalogica\MediaCommander\Models\HelperModel;
 use Yalogica\MediaCommander\Models\UserModel;
+use Yalogica\MediaCommander\Models\ConfigModel;
 
 class FoldersController
 {
@@ -186,7 +187,7 @@ class FoldersController
 
   public function getMeta(\WP_REST_Request $request)
   {
-    $type  = sanitize_key($request->get_param('type'));
+    $type = sanitize_key($request->get_param('type'));
 
     $data = UserModel::getMeta($type);
     $response = isset($data) ? ['success' => true, 'data' => $data] : ['success' => false];
@@ -196,7 +197,7 @@ class FoldersController
 
   public function updateMeta(\WP_REST_Request $request)
   {
-    $type  = sanitize_key($request->get_param('type'));
+    $type = sanitize_key($request->get_param('type'));
     $meta  = $request->get_param('meta');
 
     $data = UserModel::updateMeta($type, $meta);
@@ -207,7 +208,7 @@ class FoldersController
 
   public function getFolders(\WP_REST_Request $request)
   {
-    $type  = sanitize_key($request->get_param('type'));
+    $type = sanitize_key($request->get_param('type'));
 
     $data = FoldersModel::getFolders($type);
     $response = isset($data) ? ['success' => true, 'data' => $data] : ['success' => false];
@@ -217,7 +218,7 @@ class FoldersController
 
   public function createFolders(\WP_REST_Request $request)
   {
-    $type  = sanitize_key($request->get_param('type'));
+    $type = sanitize_key($request->get_param('type'));
     $parent = intval($request->get_param('parent'));
     $names = array_map('sanitize_text_field', $request->get_param('names') ? $request->get_param('names') : []);
     $color = HelperModel::filterColor($request->get_param('color'));
@@ -230,7 +231,7 @@ class FoldersController
 
   public function updateFolders(\WP_REST_Request $request)
   {
-    $type  = sanitize_key($request->get_param('type'));
+    $type = sanitize_key($request->get_param('type'));
     $action  = sanitize_key($request->get_param('action'));
     $ids = $request->has_param('folders') ? array_map('intval', $request->get_param('folders')) : [];
     $attrs = [
@@ -248,7 +249,7 @@ class FoldersController
 
   public function copyFolder(\WP_REST_Request $request)
   {
-    $type  = sanitize_key($request->get_param('type'));
+    $type = sanitize_key($request->get_param('type'));
     $src = intval($request->get_param('src'));
     $dst = intval($request->get_param('dst'));
 
@@ -260,7 +261,7 @@ class FoldersController
 
   public function deleteFolders(\WP_REST_Request $request)
   {
-    $type  = sanitize_key($request->get_param('type'));
+    $type = sanitize_key($request->get_param('type'));
     $ids = $request->has_param('folders') ? array_map('intval', $request->get_param('folders')) : [];
     $deleteAttachments = $request->has_param('deleteAttachments') ? boolval($request->get_param('deleteAttachments')) : false;
 
@@ -272,11 +273,14 @@ class FoldersController
 
   public function attachToFolder(\WP_REST_Request $request)
   {
-    $type  = sanitize_key($request->get_param('type'));
-    $id  = sanitize_key($request->get_param('folder'));
+    $type = sanitize_key($request->get_param('type'));
+    $id = sanitize_key($request->get_param('folder'));
     $attachments = $request->has_param('attachments') ? array_map('intval', $request->get_param('attachments')) : [];
+    $link = false;
+    $from = intval($request->get_param('from'));
 
-    $data = FoldersModel::attachToFolder($type, $id, $attachments);
+
+    $data = FoldersModel::attachToFolder($type, $id, $attachments, $link, $from);
     $response = isset($data) ? ['success' => true, 'data' => $data] : ['success' => false];
 
     return new \WP_REST_Response($response);
@@ -284,7 +288,7 @@ class FoldersController
 
   public function getAttachmentCounters(\WP_REST_Request $request)
   {
-    $type  = sanitize_key($request->get_param('type'));
+    $type = sanitize_key($request->get_param('type'));
     $ids = array_map('intval', $request->get_param('folders') ? $request->get_param('folders') : []);
 
     $data = FoldersModel::getAttachmentCounters($type, $ids);

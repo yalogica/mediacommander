@@ -270,11 +270,10 @@ class FoldersModel
           switch ($action) {
             case 'rename': {
                 // phpcs:disable WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnquotedComplexPlaceholder, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-                $sql = $wpdb->prepare(
-                  "
-                                UPDATE {$tableFolders} 
-                                SET title=%s, modified_by=%d, modified=%s 
-                                WHERE id IN(%1s)",
+                $sql = $wpdb->prepare("
+                  UPDATE {$tableFolders} 
+                  SET title=%s, modified_by=%d, modified=%s 
+                  WHERE id IN(%1s)",
                   $attrs['name'],
                   get_current_user_id(),
                   current_time('mysql', 1),
@@ -292,9 +291,9 @@ class FoldersModel
                 // phpcs:disable WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnquotedComplexPlaceholder, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
                 $sql = $wpdb->prepare(
                   "
-                                UPDATE {$tableFolders} 
-                                SET color=%s, modified_by=%d, modified=%s 
-                                WHERE id IN(%1s)",
+                  UPDATE {$tableFolders} 
+                  SET color=%s, modified_by=%d, modified=%s 
+                  WHERE id IN(%1s)",
                   $attrs['color'],
                   get_current_user_id(),
                   current_time('mysql', 1),
@@ -331,9 +330,9 @@ class FoldersModel
                 // phpcs:disable WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnquotedComplexPlaceholder, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
                 $sql = $wpdb->prepare(
                   "
-                                UPDATE {$tableFolders}
-                                SET parent=%d, modified_by=%d, modified=%s 
-                                WHERE id IN(%1s)",
+                  UPDATE {$tableFolders}
+                  SET parent=%d, modified_by=%d, modified=%s 
+                  WHERE id IN(%1s)",
                   $parent,
                   get_current_user_id(),
                   current_time('mysql', 1),
@@ -347,9 +346,9 @@ class FoldersModel
                   // phpcs:disable WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
                   $sql = $wpdb->prepare(
                     "
-                                    UPDATE {$tableFolders}
-                                    SET ord=%d
-                                    WHERE id=%d",
+                    UPDATE {$tableFolders}
+                    SET ord=%d
+                    WHERE id=%d",
                     $sort++,
                     $id
                   );
@@ -526,7 +525,7 @@ class FoldersModel
     return null;
   }
 
-  public static function attachToFolder($type, $id, $attachments)
+  public static function attachToFolder($type, $id, $attachments, $link = false, $from = 0)
   {
     $rights = UserModel::getRights($type);
 
@@ -562,13 +561,12 @@ class FoldersModel
         $owner = $rights['access_type'] == SecurityProfilesModel::COMMON_FOLDERS ? 0 : get_current_user_id();
 
         // phpcs:disable WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnquotedComplexPlaceholder, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-        $sql = $wpdb->prepare(
-          "
-                    SELECT DISTINCT A.folder_id as id 
-                    FROM {$tableAttachments} AS A 
-                    LEFT JOIN {$tableFolders} AS F 
-                    ON F.id=A.folder_id AND F.owner=%d
-                    WHERE A.attachment_id IN(%1s)",
+        $sql = $wpdb->prepare("
+          SELECT DISTINCT A.folder_id as id 
+          FROM {$tableAttachments} AS A 
+          LEFT JOIN {$tableFolders} AS F 
+          ON F.id=A.folder_id AND F.owner=%d
+          WHERE A.attachment_id IN(%1s)",
           $owner,
           $ids
         );
@@ -576,42 +574,161 @@ class FoldersModel
         $folders_to_refresh[] = $folder_dest;
         // phpcs:enable
 
-        // delete previous attachments
-        // phpcs:disable WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnquotedComplexPlaceholder, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-        $sql = $wpdb->prepare(
-          "
-                    SELECT DISTINCT A.folder_id as id
-                    FROM {$tableAttachments} AS A
-                    INNER JOIN {$tableFolders} AS F ON F.id = A.folder_id
-                    WHERE F.owner=%d AND A.attachment_id IN (%1s)",
-          $owner,
-          $ids
-        );
-        $folder_ids = array_column($wpdb->get_results($sql, 'ARRAY_A'), 'id');
-        $folder_ids = implode(',', array_map('intval', $folder_ids));
-
-        $sql = $wpdb->prepare(
-          "
-                    DELETE FROM {$tableAttachments}
-                    WHERE attachment_id IN(%1s) AND folder_id IN (%1s)",
-          $ids,
-          $folder_ids
-        );
-        $wpdb->query($sql);
-        // phpcs:enable
-
-        // add new attachments
-        if (isset($folder_dest) && !($folder_dest == -1 || $folder_dest == -2)) {
-          foreach ($attachments as $attachment) {
-            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
-            $wpdb->insert(
-              $tableAttachments,
-              [
-                'folder_id' => $folder_dest,
-                'attachment_id' => $attachment
-              ]
+        if ($link) {
+          // LINK MODE: keep all existing assignments, just add is_link=1 rows.
+          // INSERT IGNORE avoids failures on the UNIQUE KEY (folder_id, attachment_id)
+          // when the item is already in the destination folder.
+          if (isset($folder_dest) && !($folder_dest == -1 || $folder_dest == -2)) {
+            // phpcs:disable WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnquotedComplexPlaceholder, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+            $sql = $wpdb->prepare(
+              "
+              INSERT IGNORE INTO {$tableAttachments} (folder_id, attachment_id, is_link)
+              SELECT %d, A.ID, 1
+              FROM {$wpdb->posts} AS A
+              WHERE A.ID IN(%1s)",
+              $folder_dest,
+              $ids
             );
+            $wpdb->query($sql);
+            // phpcs:enable
           }
+        } else {
+          // MOVE MODE:
+          // - real target: delete the MAIN assignment (is_link=0) plus any row in the
+          //   destination folder (UNIQUE KEY guard); links in other folders survive.
+          // - virtual target (All/Uncategorized), real source: delete only the assignment
+          //   in the source folder the user dragged from (link OR main) — other folders
+          //   keep their assignments.
+          // - virtual target, virtual source (browsing All/Uncategorized): delete all
+          //   assignments of the current owner (original plugin behavior).
+          // phpcs:disable WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnquotedComplexPlaceholder, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+          if (isset($folder_dest) && !($folder_dest == -1 || $folder_dest == -2)) {
+            // validate the source folder belongs to this owner (same as $folder_dest)
+            $folder_from = null;
+            if (intval($from) > 0) {
+              switch ($rights['access_type']) {
+                case SecurityProfilesModel::COMMON_FOLDERS: {
+                    // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+                    $sql = $wpdb->prepare("SELECT id FROM {$tableFolders} WHERE type=%s AND owner=0 AND id=%d", $type, intval($from));
+                    // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+                    $folder_from = $wpdb->get_var($sql);
+                  }
+                  break;
+                case SecurityProfilesModel::PERSONAL_FOLDERS: {
+                    // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+                    $sql = $wpdb->prepare("SELECT id FROM {$tableFolders} WHERE type=%s AND owner=%d AND id=%d", $type, get_current_user_id(), intval($from));
+                    // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+                    $folder_from = $wpdb->get_var($sql);
+                  }
+                  break;
+              }
+            }
+
+            // split the dragged items: those present in the source folder via LINK
+            // (relocate the link, keep the main) vs the rest (classic main move)
+            $link_items = [];
+            if ($folder_from) {
+              // phpcs:disable WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnquotedComplexPlaceholder, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+              $sql = $wpdb->prepare(
+                "
+                SELECT A.attachment_id
+                FROM {$tableAttachments} AS A
+                INNER JOIN {$tableFolders} AS F ON F.id = A.folder_id
+                WHERE F.owner=%d AND A.folder_id=%d AND A.is_link=1 AND A.attachment_id IN(%1s)",
+                $owner,
+                intval($folder_from),
+                $ids
+              );
+              $link_items = $wpdb->get_col($sql);
+              // phpcs:enable
+            }
+            $main_items = array_values(array_diff($attachments, $link_items));
+
+            // 1) LINKS: move (from, X, is_link=1) -> (dest, X, is_link=1); the MAIN assignment is untouched
+            if (!empty($link_items)) {
+              $link_ids = implode(',', array_map('intval', $link_items));
+
+              // phpcs:disable WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnquotedComplexPlaceholder, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+              $sql = $wpdb->prepare(
+                "DELETE FROM {$tableAttachments} WHERE folder_id=%d AND is_link=1 AND attachment_id IN(%1s)",
+                intval($folder_from),
+                $link_ids
+              );
+              $wpdb->query($sql);
+
+              $sql = $wpdb->prepare(
+                "
+                INSERT IGNORE INTO {$tableAttachments} (folder_id, attachment_id, is_link)
+                SELECT %d, P.ID, 1
+                FROM {$wpdb->posts} AS P
+                WHERE P.ID IN(%1s)",
+                $folder_dest,
+                $link_ids
+              );
+              $wpdb->query($sql);
+              // phpcs:enable
+            }
+
+            // 2) MAIN move for the rest: delete main rows + dest rows, insert main
+            if (!empty($main_items)) {
+              $main_ids = implode(',', array_map('intval', $main_items));
+
+              // phpcs:disable WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnquotedComplexPlaceholder, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+              $sql = $wpdb->prepare(
+                "
+                DELETE A.*
+                FROM {$tableAttachments} AS A
+                INNER JOIN {$tableFolders} AS F ON F.id = A.folder_id
+                WHERE A.attachment_id IN(%1s)
+                  AND F.owner=%d
+                  AND (A.is_link = 0 OR A.folder_id = %d)",
+                $main_ids,
+                $owner,
+                intval($folder_dest)
+              );
+              $wpdb->query($sql);
+              // phpcs:enable
+
+              foreach ($main_items as $attachment) {
+                // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+                $wpdb->insert(
+                  $tableAttachments,
+                  [
+                    'folder_id' => $folder_dest,
+                    'attachment_id' => $attachment,
+                    'is_link' => 0
+                  ]
+                );
+              }
+            }
+          } else if (intval($from) > 0) {
+            $sql = $wpdb->prepare(
+              "
+              DELETE A.*
+              FROM {$tableAttachments} AS A
+              INNER JOIN {$tableFolders} AS F ON F.id = A.folder_id
+              WHERE A.attachment_id IN(%1s)
+                AND F.owner=%d
+                AND F.id=%d",
+              $ids,
+              $owner,
+              intval($from)
+            );
+            $wpdb->query($sql); 
+          } else {
+            $sql = $wpdb->prepare(
+              "
+              DELETE A.*
+              FROM {$tableAttachments} AS A
+              INNER JOIN {$tableFolders} AS F ON F.id = A.folder_id
+              WHERE A.attachment_id IN(%1s)
+                AND F.owner=%d",
+              $ids,
+              $owner
+            );
+            $wpdb->query($sql); 
+          }
+          // phpcs:enable
         }
 
         // update the attachment count
@@ -621,9 +738,9 @@ class FoldersModel
           // phpcs:disable WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnquotedComplexPlaceholder, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
           $sql = $wpdb->prepare(
             "
-                        UPDATE {$tableFolders} AS F 
-                        SET count = (SELECT COUNT(folder_id) FROM {$tableAttachments} AS A WHERE A.folder_id=F.id) 
-                        WHERE id IN(%1s)",
+            UPDATE {$tableFolders} AS F 
+            SET count = (SELECT COUNT(folder_id) FROM {$tableAttachments} AS A WHERE A.folder_id=F.id) 
+            WHERE id IN(%1s)",
             $ids
           );
           $wpdb->query($sql);
@@ -637,6 +754,76 @@ class FoldersModel
     }
 
     return null;
+  }
+
+  public static function detachFromFolder($type, $id, $attachments)
+  {
+    $rights = UserModel::getRights($type);
+
+    if ($rights && $rights['access_type'] && $rights['a'] && intval($id) > 0) {
+      if (is_array($attachments) && count($attachments) > 0) {
+        global $wpdb;
+        $tableFolders = esc_sql(HelperModel::getTableName(HelperModel::FOLDERS));
+        $tableAttachments = esc_sql(HelperModel::getTableName(HelperModel::ATTACHMENTS));
+
+        $owner = $rights['access_type'] == SecurityProfilesModel::COMMON_FOLDERS ? 0 : get_current_user_id();
+
+        // validate the folder belongs to the current owner
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+        $sql = $wpdb->prepare("SELECT id FROM {$tableFolders} WHERE type=%s AND owner=%d AND id=%d", $type, $owner, intval($id));
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+        $folder = $wpdb->get_var($sql);
+
+        if ($folder) {
+          $ids = implode(',', array_map('intval', $attachments));
+
+          // phpcs:disable WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnquotedComplexPlaceholder, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+          $sql = $wpdb->prepare(
+            "DELETE FROM {$tableAttachments} WHERE folder_id=%d AND attachment_id IN(%1s)",
+            $folder,
+            $ids
+          );
+          $wpdb->query($sql);
+
+          $sql = $wpdb->prepare(
+            "
+            UPDATE {$tableFolders} AS F
+            SET count = (SELECT COUNT(folder_id) FROM {$tableAttachments} AS A WHERE A.folder_id=F.id)
+            WHERE id=%d",
+            $folder
+          );
+          $wpdb->query($sql);
+          // phpcs:enable
+
+          if (!$wpdb->last_error) {
+            return [$folder];
+          }
+        }
+      }
+    }
+
+    return null;
+  }
+
+  public static function isAttachmentLink($folder, $attachment_id)
+  {
+    static $cache = [];
+
+    $folder = intval($folder);
+    if ($folder <= 0) {
+      return false;
+    }
+
+    if (!isset($cache[$folder])) {
+      global $wpdb;
+      $tableAttachments = esc_sql(HelperModel::getTableName(HelperModel::ATTACHMENTS));
+      // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+      $sql = $wpdb->prepare("SELECT attachment_id FROM {$tableAttachments} WHERE folder_id = %d AND is_link = 1", $folder);
+      // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+      $cache[$folder] = array_flip($wpdb->get_col($sql));
+    }
+
+    return isset($cache[$folder][intval($attachment_id)]);
   }
 
   private static function getVirtualCounters($type, $owner) {
@@ -661,7 +848,7 @@ class FoldersModel
                     FROM {$tableAttachments} AS A 
                     LEFT JOIN {$tableFolders} AS F 
                     ON F.id = A.folder_id 
-                    WHERE F.type=%s AND F.owner=%d
+                    WHERE F.type=%s AND F.owner=%d AND A.is_link=0
                 )",
                 $type, $owner
             );
@@ -686,7 +873,7 @@ class FoldersModel
                     FROM {$tableAttachments} AS A 
                     LEFT JOIN {$tableFolders} AS F 
                     ON F.id = A.folder_id 
-                    WHERE F.type=%s AND F.owner=%d
+                    WHERE F.type=%s AND F.owner=%d AND A.is_link=0
                 )",
                 $type, $type, $owner
             );
@@ -738,14 +925,14 @@ class FoldersModel
     $tableAttachments = esc_sql(HelperModel::getTableName(HelperModel::ATTACHMENTS));
 
     $sql = "DELETE FROM {$tableAttachments} WHERE attachment_id NOT IN (
-					SELECT A.attachment_id 
-					FROM (SELECT attachment_id, folder_id FROM {$tableAttachments}) AS A
-					LEFT JOIN {$tableFolders} AS F
-					ON A.folder_id = F.id
-					LEFT JOIN {$wpdb->posts} AS P
-					ON A.attachment_id = P.ID AND F.type = P.post_type
-					WHERE P.post_type IS NOT NULL
-                )";
+      SELECT A.attachment_id 
+      FROM (SELECT attachment_id, folder_id FROM {$tableAttachments}) AS A
+      LEFT JOIN {$tableFolders} AS F
+      ON A.folder_id = F.id
+      LEFT JOIN {$wpdb->posts} AS P
+      ON A.attachment_id = P.ID AND F.type = P.post_type
+      WHERE P.post_type IS NOT NULL
+    )";
     // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
     $wpdb->query($sql);
 
@@ -924,11 +1111,11 @@ class FoldersModel
       // phpcs:disable WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnquotedComplexPlaceholder, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
       $sql = $wpdb->prepare(
         "
-                SELECT DISTINCT A.folder_id as id 
-                FROM {$tableAttachments} AS A 
-                LEFT JOIN {$tableFolders} AS F 
-                ON F.id=A.folder_id AND F.type=%s AND F.owner=%d
-                WHERE A.attachment_id IN(%1s)",
+        SELECT DISTINCT A.folder_id as id 
+        FROM {$tableAttachments} AS A 
+        LEFT JOIN {$tableFolders} AS F 
+        ON F.id=A.folder_id AND F.type=%s AND F.owner=%d
+        WHERE A.attachment_id IN(%1s)",
         $type,
         $owner,
         $ids
@@ -940,11 +1127,11 @@ class FoldersModel
       // phpcs:disable WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnquotedComplexPlaceholder, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
       $sql = $wpdb->prepare(
         "
-                DELETE A.* 
-                FROM {$tableAttachments} AS A 
-                LEFT JOIN {$tableFolders} AS F 
-                ON F.id=A.folder_id AND F.type=%s AND F.owner=%d
-                WHERE A.attachment_id IN(%1s)",
+        DELETE A.* 
+        FROM {$tableAttachments} AS A 
+        LEFT JOIN {$tableFolders} AS F 
+        ON F.id=A.folder_id AND F.type=%s AND F.owner=%d
+        WHERE A.attachment_id IN(%1s)",
         $type,
         $owner,
         $ids
@@ -968,9 +1155,9 @@ class FoldersModel
       // phpcs:disable WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
       $sql = $wpdb->prepare(
         "
-                UPDATE {$tableFolders} AS F 
-                SET count = (SELECT COUNT(folder_id) FROM {$tableAttachments} AS A WHERE A.folder_id=F.id) 
-                WHERE F.id=%d",
+        UPDATE {$tableFolders} AS F 
+        SET count = (SELECT COUNT(folder_id) FROM {$tableAttachments} AS A WHERE A.folder_id=F.id) 
+        WHERE F.id=%d",
         $id
       );
       $wpdb->query($sql);
@@ -983,9 +1170,9 @@ class FoldersModel
         // phpcs:disable WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnquotedComplexPlaceholder, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
         $sql = $wpdb->prepare(
           "
-                    UPDATE {$tableFolders} AS F 
-                    SET count = (SELECT COUNT(folder_id) FROM {$tableAttachments} AS A WHERE A.folder_id=F.id) 
-                    WHERE id IN(%1s)",
+          UPDATE {$tableFolders} AS F 
+          SET count = (SELECT COUNT(folder_id) FROM {$tableAttachments} AS A WHERE A.folder_id=F.id) 
+          WHERE id IN(%1s)",
           $ids
         );
         $wpdb->query($sql);
