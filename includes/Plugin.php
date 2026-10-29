@@ -20,6 +20,8 @@ class Plugin
 
   public static function pluginsLoaded()
   {
+    System\Installer::upgrade();
+
     new Rest\Routes();
     new Blocks\GalleryBlock();
     new System\Notice();

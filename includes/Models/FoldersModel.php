@@ -561,13 +561,16 @@ class FoldersModel
         $owner = $rights['access_type'] == SecurityProfilesModel::COMMON_FOLDERS ? 0 : get_current_user_id();
 
         // phpcs:disable WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnquotedComplexPlaceholder, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-        $sql = $wpdb->prepare("
-          SELECT DISTINCT A.folder_id as id 
-          FROM {$tableAttachments} AS A 
-          LEFT JOIN {$tableFolders} AS F 
-          ON F.id=A.folder_id AND F.owner=%d
-          WHERE A.attachment_id IN(%1s)",
+        $sql = $wpdb->prepare(
+          "
+          SELECT DISTINCT A.folder_id AS id
+          FROM {$tableAttachments} AS A
+          INNER JOIN {$tableFolders} AS F ON F.id=A.folder_id
+          WHERE F.owner=%d
+            AND F.type=%s
+            AND A.attachment_id IN(%1s)",
           $owner,
+          $type,
           $ids
         );
         $folders_to_refresh = array_column($wpdb->get_results($sql, 'ARRAY_A'), 'id');
@@ -676,14 +679,18 @@ class FoldersModel
               // phpcs:disable WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnquotedComplexPlaceholder, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
               $sql = $wpdb->prepare(
                 "
-                DELETE A.*
-                FROM {$tableAttachments} AS A
-                INNER JOIN {$tableFolders} AS F ON F.id = A.folder_id
-                WHERE A.attachment_id IN(%1s)
-                  AND F.owner=%d
-                  AND (A.is_link = 0 OR A.folder_id = %d)",
+                DELETE FROM {$tableAttachments}
+                WHERE attachment_id IN(%1s)
+                  AND folder_id IN (
+                    SELECT id
+                    FROM {$tableFolders}
+                    WHERE owner=%d
+                      AND type=%s
+                  )
+                  AND (is_link=0 OR folder_id=%d)",
                 $main_ids,
                 $owner,
+                $type,
                 intval($folder_dest)
               );
               $wpdb->query($sql);
@@ -704,27 +711,35 @@ class FoldersModel
           } else if (intval($from) > 0) {
             $sql = $wpdb->prepare(
               "
-              DELETE A.*
-              FROM {$tableAttachments} AS A
-              INNER JOIN {$tableFolders} AS F ON F.id = A.folder_id
-              WHERE A.attachment_id IN(%1s)
-                AND F.owner=%d
-                AND F.id=%d",
+              DELETE FROM {$tableAttachments}
+              WHERE attachment_id IN(%1s)
+                AND folder_id IN (
+                  SELECT id
+                  FROM {$tableFolders}
+                  WHERE owner=%d
+                    AND type=%s
+                    AND id=%d
+                )",
               $ids,
               $owner,
+              $type,
               intval($from)
             );
             $wpdb->query($sql); 
           } else {
             $sql = $wpdb->prepare(
               "
-              DELETE A.*
-              FROM {$tableAttachments} AS A
-              INNER JOIN {$tableFolders} AS F ON F.id = A.folder_id
-              WHERE A.attachment_id IN(%1s)
-                AND F.owner=%d",
+              DELETE FROM {$tableAttachments}
+              WHERE attachment_id IN(%1s)
+                AND folder_id IN (
+                  SELECT id
+                  FROM {$tableFolders}
+                  WHERE owner=%d
+                    AND type=%s
+                )",
               $ids,
-              $owner
+              $owner,
+              $type
             );
             $wpdb->query($sql); 
           }
@@ -1111,11 +1126,12 @@ class FoldersModel
       // phpcs:disable WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnquotedComplexPlaceholder, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
       $sql = $wpdb->prepare(
         "
-        SELECT DISTINCT A.folder_id as id 
-        FROM {$tableAttachments} AS A 
-        LEFT JOIN {$tableFolders} AS F 
-        ON F.id=A.folder_id AND F.type=%s AND F.owner=%d
-        WHERE A.attachment_id IN(%1s)",
+        SELECT DISTINCT A.folder_id AS id
+        FROM {$tableAttachments} AS A
+        INNER JOIN {$tableFolders} AS F ON F.id=A.folder_id
+        WHERE F.type=%s
+          AND F.owner=%d
+          AND A.attachment_id IN(%1s)",
         $type,
         $owner,
         $ids
@@ -1127,14 +1143,17 @@ class FoldersModel
       // phpcs:disable WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnquotedComplexPlaceholder, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
       $sql = $wpdb->prepare(
         "
-        DELETE A.* 
-        FROM {$tableAttachments} AS A 
-        LEFT JOIN {$tableFolders} AS F 
-        ON F.id=A.folder_id AND F.type=%s AND F.owner=%d
-        WHERE A.attachment_id IN(%1s)",
+        DELETE FROM {$tableAttachments}
+        WHERE attachment_id IN(%1s)
+          AND folder_id IN (
+            SELECT id
+            FROM {$tableFolders}
+            WHERE type=%s
+              AND owner=%d
+          )",
+        $ids,
         $type,
-        $owner,
-        $ids
+        $owner
       );
       $wpdb->query($sql);
       // phpcs:enable

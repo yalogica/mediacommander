@@ -1,9 +1,9 @@
 <?php
 /**
- * Plugin Name:       MediaCommander - Bring Folders to Media, Posts, and Pages
+ * Plugin Name:       MediaCommander - Media Library Folders & File Manager
  * Plugin URI:        https://yalogica.com/mediacommander/
  * Description:       Improve your WordPress media library with a more intuitive way. Simply drag & drop items into folders for effortless accessibility.
- * Version:           2.7.0
+ * Version:           2.7.1
  * Requires at least: 6.0
  * Requires PHP:      7.4
  * Author:            Yalogica
@@ -27,8 +27,8 @@ if (class_exists('Yalogica\\MediaCommander\\Plugin')) {
 }
 
 define('MEDIACOMMANDER_PLUGIN_NAME', 'mediacommander');
-define('MEDIACOMMANDER_PLUGIN_VERSION', '2.7.0');
-define('MEDIACOMMANDER_PLUGIN_DB_VERSION', '3.0');
+define('MEDIACOMMANDER_PLUGIN_VERSION', '2.7.1');
+define('MEDIACOMMANDER_PLUGIN_DB_VERSION', '3.1');
 define('MEDIACOMMANDER_PLUGIN_DB_TABLE_PREFIX', 'mediacommander');
 define("MEDIACOMMANDER_PLUGIN_SHORTCODE_NAME", 'mediacommander');
 define('MEDIACOMMANDER_PLUGIN_BASE_NAME', plugin_basename(__FILE__));
@@ -45,7 +45,7 @@ require_once __DIR__ . '/includes/autoload.php';
 register_activation_hook(__FILE__, ['Yalogica\\MediaCommander\\Plugin', 'activate']);
 register_deactivation_hook(__FILE__, ['Yalogica\\MediaCommander\\Plugin', 'deactivate']);
 
-if (function_exists('mediacommander_fs')) {
+if (function_exists(__NAMESPACE__ . '\\mediacommander_fs')) {
   mediacommander_fs()->set_basename(false, __FILE__);
 } else {
   function mediacommander_fs()
@@ -54,6 +54,7 @@ if (function_exists('mediacommander_fs')) {
 
     if (!isset($mediacommander_fs)) {
       require_once dirname(__FILE__) . '/vendor/freemius/wordpress-sdk/start.php';
+
       $mediacommander_fs = fs_dynamic_init([
         'id'                  => '15460',
         'type'                => 'plugin',

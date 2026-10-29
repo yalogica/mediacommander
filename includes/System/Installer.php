@@ -26,9 +26,12 @@ class Installer
 
     $this->createDbTables();
     $this->initDbTables();
-
     $this->updateVersion();
-    $this->updateDbVersion();
+
+    if ($this->hasLinkColumn()) {
+      $this->updateDbVersion();
+    }
+
     $this->updateDate();
   }
 
@@ -51,6 +54,21 @@ class Installer
     if ($stored === '' || version_compare($stored, MEDIACOMMANDER_PLUGIN_DB_VERSION, '<')) {
       update_option(self::OPTION_DB_VERSION, MEDIACOMMANDER_PLUGIN_DB_VERSION, false);
     }
+  }
+
+  private function hasLinkColumn()
+  {
+    global $wpdb;
+
+    $tableAttachments = esc_sql(
+      HelperModel::getTableName(HelperModel::ATTACHMENTS)
+    );
+
+    // LIMIT 0 validates the table and column without reading data.
+    // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+    return false !== $wpdb->query(
+      "SELECT is_link FROM {$tableAttachments} LIMIT 0"
+    );
   }
 
   private function updateDate()
@@ -148,5 +166,13 @@ class Installer
   {
     FolderTypesModel::init();
     SecurityProfilesModel::init();
+  }
+
+  public static function upgrade()
+  {
+    $stored = (string) get_option(self::OPTION_DB_VERSION, '');
+    if ($stored === '' || version_compare($stored, MEDIACOMMANDER_PLUGIN_DB_VERSION, '<')) {
+      new self();
+    }
   }
 }
