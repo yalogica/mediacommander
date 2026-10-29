@@ -32,7 +32,7 @@ MediaCommander is a WordPress plugin that brings a folder tree to the media libr
 - Import folders from FileBird and Real Media Library
 - Image gallery block for the block editor
 
-**MediaCommander Pro** adds folders for posts, pages and custom post types, advanced folder access rules per role/user, custom folder sorting, default folder color configuration, hidden folder item counters, and customizable media hover info.
+**MediaCommander Pro** adds folders for posts, pages and custom post types, links (shortcuts) keep one item in multiple folders, advanced folder access rules per role/user, custom folder sorting, default folder color configuration, hidden folder item counters, and customizable media hover info.
 
 ## Installation
 
